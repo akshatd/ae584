@@ -7,7 +7,7 @@ color_orange = [0.8500 0.3250 0.0980];
 
 % plot angular velocity over time
 ang_vels = calc_angvel(0:Tfid:Tsim);
-fig = figure;
+figure;
 hold on;
 plot(0:Tfid:Tsim, ang_vels(1,:), 'r', 'LineWidth', 2, 'DisplayName', '$\omega_i$');
 plot(0:Tfid:Tsim, ang_vels(2,:), '--g', 'LineWidth', 2, 'DisplayName', '$\omega_j$');
@@ -17,13 +17,13 @@ title('HW1 P7(i): Angular Velocity vs Time');
 xlabel('Time (s)');
 legend("Location", "best", "Interpreter", "latex");
 grid on; grid minor;
-saveas(fig, 'angular_velocity.svg');
+% saveas(fig, 'angular_velocity.svg');
 
 % run simulation
 x0 = [0;0;0]; % phi, theta, psi
 [t, x] = ode45(@(t, x) dyn(t, x), 0:Tfid:Tsim, x0);
 
-fig = figure;
+figure;
 hold on;
 plot(t, x(:,1), 'r', 'LineWidth', 2, 'DisplayName', '$\phi$');
 plot(t, x(:,2), 'g', 'LineWidth', 2, 'DisplayName', '$\theta$');
@@ -33,7 +33,7 @@ title('HW1 P7(i): Euler Angles vs Time');
 xlabel('Time (s)');
 legend("Location", "best", "Interpreter", "latex");
 grid on; grid minor;
-saveas(fig, 'euler_angles.svg');
+% saveas(fig, 'euler_angles.svg');
 
 % plot orientation matrix
 omat = zeros(3,3,length(t));
@@ -54,7 +54,7 @@ for i = 1:3
 	end
 end
 fig.Position(3:4) = [900, 800];
-saveas(fig, 'orientation_matrix.svg');
+% saveas(fig, 'orientation_matrix.svg');
 
 % get orientation matrix using poisson's formula
 omat_poisson_0 = eye(3); % start with identity matrix
@@ -77,7 +77,7 @@ end
 legend("Location", "best", "Interpreter", "latex");
 
 fig.Position(3:4) = [900, 800];
-saveas(fig, 'orientation_matrix_poisson.svg');
+% saveas(fig, 'orientation_matrix_poisson.svg');
 
 % calculate euler angles from orientation matrix
 euler_angles = zeros(3, length(t));
@@ -108,7 +108,7 @@ for i = 1:3
 end
 
 fig.Position(3:4) = [900, 800];
-saveas(fig, 'euler_angles_comparison.svg');
+% saveas(fig, 'euler_angles_comparison.svg');
 
 function ang_vel = calc_angvel(t)
 ang_vel = [
@@ -121,7 +121,7 @@ end
 function xdot = dyn(t, x)
 phi = x(1);
 theta = x(2);
-psi = x(3);
+% psi = x(3);
 S_inv = [
 	1, sin(phi)*tan(theta), cos(phi)*tan(theta);
 	0, cos(phi), -sin(phi);
