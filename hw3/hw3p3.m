@@ -40,7 +40,6 @@ for i = 1:length(guess_range)
 		for k = 1:length(guess_range)
 			p_inits((i-1)*length(guess_range)^2 + (j-1)*length(guess_range) + k, :) = [guess_range(i), guess_range(j), guess_range(k)];
 		end
-		% p_inits((i-1)*length(guess_range)+j, :) = [guess_range(i), guess_range(j)];
 	end
 end
 
