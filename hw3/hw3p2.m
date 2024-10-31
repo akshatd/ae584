@@ -83,7 +83,7 @@ title('HW3 P2b: Locations of position fixes and light houses');
 % else
 %     temp = theta1 - theta2;
 % end
-% 
+%
 % theta_subtended = mod(temp, 180);
 % end
 
