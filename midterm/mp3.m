@@ -38,7 +38,7 @@ for i=1:length(t)
 	omat_BE(:,:,i) = omat;
 	omat_BE_flat(i, :) = reshape(omat', 1, 9);
 end
-plot_omat(t, omat_BE_flat, '$O_{B|E}$ vs Time');
+plot_omat(t, omat_BE_flat, 'P3: $O_{B|E}$ vs Time');
 
 % get euler angles for B|E
 eul_ang_BE = zeros(length(t), 3);
@@ -46,7 +46,7 @@ for i=1:length(t)
 	[psi, theta, phi] = euler_from_omat321(omat_BE(:,:,i));
 	eul_ang_BE(i,:) = [psi, theta, phi];
 end
-plot_euler_angles(t, eul_ang_BE, 'Euler Angles $B|E_{|B}$ vs Time');
+plot_euler_angles(t, eul_ang_BE, 'P3: Euler Angles vs Time');
 
 
 % angular velocity for B|I
@@ -146,16 +146,26 @@ end
 
 
 function plot_euler_angles(t, theta, title_str)
-figure;
-hold on;
-plot(t, theta(:,1), 'r', 'LineWidth', 2, 'DisplayName', '$\psi$');
-plot(t, theta(:,2), '--g', 'LineWidth', 2, 'DisplayName', '$\theta$');
-plot(t, theta(:,3), 'b', 'LineWidth', 2, 'DisplayName', '$\phi$');
-ylabel('Angle (rad)');
-title(title_str, 'Interpreter', 'latex');
-xlabel('Time (s)');
-legend("Location", "best", "Interpreter", "latex");
+fig = figure;
+fig.Position(3:4) = [500, 1000];
+sgtitle(title_str, 'Interpreter', 'latex');
+
+subplot(3,1,1);
+plot(t, theta(:,1), '-', 'LineWidth', 2);
+ylabel('$\psi$', 'Interpreter', 'latex', 'FontSize', 16);
 grid on; grid minor;
+
+subplot(3,1,2);
+plot(t, theta(:,2), '-', 'LineWidth', 2);
+ylabel('$\theta$', 'Interpreter', 'latex', 'FontSize', 16);
+grid on; grid minor;
+
+subplot(3,1,3);
+plot(t, theta(:,3), '-', 'LineWidth', 2);
+ylabel('$\phi$', 'Interpreter', 'latex', 'FontSize', 16);
+xlabel('Time (s)');
+grid on; grid minor;
+
 end
 
 
