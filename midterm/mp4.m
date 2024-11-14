@@ -9,28 +9,33 @@ Tfid = 0.01;
 Tsim = 20;
 
 % propagate orientation matrix with angular velocity for B_A
-r_cw_0 = [1;0;0]; % m
-rdot_cw_0 = [0;cos(alpha);sin(alpha)]; % m/s
+r_0 = [1;0;0]; % m
+rdot_0 = [0;cos(alpha);sin(alpha)]; % m/s
 omat_BA_0 = [
 	1, 0,           0;
 	0, cos(alpha),  sin(alpha);
 	0, -sin(alpha), cos(alpha);
 	];
-display(omat_BA_0);
-omat_BA_0_flat = reshape(omat_BA_0', 9, 1); % transpose so its rowwise
-display(omat_BA_0_flat);
+% display(omat_BA_0);
+omat_BA_0 = omat_BA_0(:); % plot and omat_dot expects it columnwise as in example_posson_equation.m
+% display(omat_BA_0);
 x0 = [ % extended state
-	r_cw_0;
-	rdot_cw_0;
-	omat_BA_0_flat;
+	r_0;
+	rdot_0;
+	omat_BA_0;
 	];
-[t, omat_BA] = ode45(@(t,x)omat_dot(t,x,@omega_BA), 0:Tfid:Tsim, omat_BA_0);
-plot_omat(t, omat_BA, '$O_{B|A}$ vs Time');
 
+% [t, x] = ode45(@(t,x) dynamics1(t, x), 0:Tfid:Tsim, x0);
+[t, x] = ode45(@(t,x) dynamics(t, x, g, alpha), 0:Tfid:Tsim, x0);
+
+r = x(:,1:3);
+plot_traj(r);
+omat_BA = x(:,7:15);
+plot_omat(t, omat_BA, '$O_{B|A}$ vs Time');
 % test = dynamics(0.1, x0, g, alpha);
 
 
-function omega = omega_BA(~)
+function omega = get_omega_BA(~)
 omega = [0;0;1];
 end
 
@@ -58,17 +63,30 @@ acc = [
 	];
 end
 
-% function xdot = dynamics(t, x, g, alpha)
-% r_cw = x(1:3);
-% rdot_cw = x(4:6);
-% omat_BA = reshape(x(7:15), 3, 3)';
+function xdot = dynamics(t, x, g, alpha)
+% extract states from x
+r_A = x(1:3);
+rdot_A = x(4:6);
+omat_BA = x(7:15); % flat here cuz omat_dot expects it flat, columnwise
+omat_BA_dot = omat_dot(t, omat_BA, @get_omega_BA); % calculate first for returning
 
-% % get omat_BA_dot
-% omat_BA_dot = omat_dot(t, omat_BA, @omega_BA);
+% get rdot_B from rdot_A and omat_BA (transport theorem)
+omega_BA = get_omega_BA(t);
+omat_BA = reshape(omat_BA, 3, 3); % reshape does columnwise by default
+rdot_B = rdot_A - crMat(omega_BA)*r_A;
 
-% acc_cw_B =
+% get everything else for double transport
+rddot_B = get_acc(g, alpha, t) - omat_BA*[0;0;-g];
+omega_BA = get_omega_BA(t);
+omega_BA_cross = crMat(omega_BA);
+rddot_A = rddot_B + 2*omega_BA_cross*rdot_B + omega_BA_cross*(omega_BA_cross*r_A);
 
-% end
+xdot = [
+	rdot_A;
+	rddot_A;
+	omat_BA_dot;
+	];
+end
 
 function plot_omat(t, omat, title_str)
 omat_11 = omat(:,1);
@@ -157,4 +175,15 @@ set(gca,'TickLabelInterpreter','latex');
 xlabel('$t$ (s)','Interpreter','latex')
 grid on
 
+end
+
+
+function plot_traj(r)
+figure;
+plot3(r(:,1), r(:,2), r(:,3), 'linewidth', 2);
+xlabel('x');
+ylabel('y');
+zlabel('z');
+title('Trajectory of center of mass of quadcopter');
+grid on;
 end
