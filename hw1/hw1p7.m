@@ -67,7 +67,7 @@ for i = 1:3
 	for j = 1:3
 		subplot(3,3,3*(i-1)+j);
 		hold on;
-		plot(t, squeeze(omat_poisson(:, 3*(i-1)+j)), 'LineWidth', 2, 'DisplayName', '$\Theta$ (Poisson)');
+		plot(t, squeeze(omat_poisson(:, 3*(j-1)+i)), 'LineWidth', 2, 'DisplayName', '$\Theta$ (Poisson)');
 		plot(t, squeeze(omat(i,j,:)), '--', 'LineWidth', 2, 'Color', color_orange, 'DisplayName', '$\Theta$');
 		ylabel(['\Theta_{', num2str(i), num2str(j), '}']);
 		xlabel('Time (s)');
@@ -87,7 +87,7 @@ for i = 1:length(t)
 	[phi, theta, psi] = calc_euler_from_omat(reshape(squeeze(omat(:,:,i)), 3, 3));
 	euler_angles(:,i) = [phi; theta; psi];
 	% transpose because reshape interprets column wise but it is stored row wise
-	[phi, theta, psi] = calc_euler_from_omat(reshape(omat_poisson(i,:), 3, 3)');
+	[phi, theta, psi] = calc_euler_from_omat(reshape(omat_poisson(i,:), 3, 3));
 	euler_angles_poisson(:,i) = [phi; theta; psi];
 end
 
@@ -145,7 +145,7 @@ end
 function omat_poisson = calc_omat_poisson(t, omat)
 ang_vel_cross = crMat(calc_angvel(t));
 omat = reshape(omat, 3, 3);
-omat_poisson = ang_vel_cross * omat;
+omat_poisson = -ang_vel_cross * omat;
 omat_poisson = omat_poisson(:);
 end
 
