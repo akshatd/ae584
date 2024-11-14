@@ -10,7 +10,7 @@ plot_angvel(0:Tfid:Tsim, angvels, 'Angular Velocity $B|I_{|B}$ vs Time');
 
 % propagate orientation matrix with angular velocity for B_I
 omat_BI_0 = eye(3); % start with identity matrix
-omat_BI_0 = omat_BI_0(:); % vectorize the matrix
+omat_BI_0 = omat_BI_0(:); % vectorize the matrix columnwise
 [t, omat_BI] = ode45(@(t,x)omat_dot(t,x,@angvel_B_I), 0:Tfid:Tsim, omat_BI_0);
 plot_omat(t, omat_BI, '$O_{B|I}$ vs Time');
 
@@ -25,7 +25,7 @@ omat_EI_flat = zeros(length(t), 9);
 for i=1:length(t)
 	omat = omat313(eul_ang_EI(i,:));
 	omat_EI(:,:,i) = omat;
-	omat_EI_flat(i, :) = reshape(omat', 1, 9);
+	omat_EI_flat(i, :) = omat(:); % plot expects it to be columnwise
 end
 plot_omat(t, omat_EI_flat, '$O_{E|I}$ vs Time');
 
@@ -33,10 +33,10 @@ plot_omat(t, omat_EI_flat, '$O_{E|I}$ vs Time');
 omat_BE = zeros(3,3,length(t));
 omat_BE_flat = zeros(length(t), 9);
 for i=1:length(t)
-	omat_BI_mat = reshape(omat_BI(i,:), 3, 3)';
+	omat_BI_mat = reshape(omat_BI(i,:), 3, 3); % reshape does columnwise
 	omat = omat_EI(:,:,i) \ omat_BI_mat;
 	omat_BE(:,:,i) = omat;
-	omat_BE_flat(i, :) = reshape(omat', 1, 9);
+	omat_BE_flat(i, :) = omat(:); % plot expects it to be columnwise
 end
 plot_omat(t, omat_BE_flat, 'P3: $O_{B|E}$ vs Time');
 
