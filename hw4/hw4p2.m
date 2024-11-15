@@ -57,8 +57,7 @@ for k=1:ks
 end
 
 load('rcwA.mat');
-plot_trajectory(data.x, rcwA_Ts_0_01, 'Quadcopter trajectory');
-
+plot_trajectory2(rcwA_Ts_0_01, data.x, 'Estimated', 'HW4 P2a: Quadcopter trajectory');
 
 %% part b, predict and update
 
@@ -69,20 +68,22 @@ for i=1:ks+1
 end
 R = 0.001*eye(3); Q = 10*eye(6);
 P_0 = 10*eye(6);
+C = [eye(3), zeros(3)];
 
 data.x_01 = zeros(6,ks+1);
 data.x_01(:,1) = x_0;
 data.x_1 = zeros(6,ks+1);
 data.x_1(:,1) = x_0;
+
+% for Tmocap = 1
 x_k = x_0;
 y_k = y_0;
 P_k = P_0;
-C = [eye(3), zeros(3)];
+modT = 1/T;
 for k=1:ks
 	% get sensor data
 	omega_k = omega_k_noisy();
 	a_k = a_k_noisy(k);
-	r_k = r_noisy(:,k);
 	
 	% get dynamics
 	[Ad, Bd, OMEGAd] = get_discrete_sys(T, omega_k);
@@ -91,13 +92,58 @@ for k=1:ks
 	y_kp1 = OMEGAd*y_k;
 	x_kp1_p = Ad*x_k + Bd*(y_k'*a_k - g_A);
 	
-	% covariance stuff
-	P_kp1_p = Ad*P_k*Ad' + Q;
-	K_k = P_kp1_p*C'/(C*P_kp1_p*C' + R);
-	P_k = P_kp1_p - K_k*C*P_kp1_p;
+	if mod(k,modT) == 0
+		% Get mocap data
+		r_k = r_noisy(:,k);
+		% covariance stuff
+		P_kp1_p = Ad*P_k*Ad' + Q;
+		K_k = P_kp1_p*C'/(C*P_kp1_p*C' + R);
+		P_k = P_kp1_p - K_k*C*P_kp1_p;
+		
+		% update
+		x_kp1 = x_kp1_p + K_k*(r_k - C*x_kp1_p);
+	else
+		x_kp1 = x_kp1_p;
+	end
 	
-	% update
-	x_kp1 = x_kp1_p + K_k*(r_k - C*x_kp1_p);
+	% store data
+	data.x_1(:,k+1) = x_kp1;
+	
+	% prep for next iteration
+	x_k = x_kp1;
+	y_k = y_kp1;
+end
+
+% for Tmocap = 0.1
+x_k = x_0;
+y_k = y_0;
+P_k = P_0;
+modT = 0.1/T;
+for k=1:ks
+	% get sensor data
+	omega_k = omega_k_noisy();
+	a_k = a_k_noisy(k);
+	
+	% get dynamics
+	[Ad, Bd, OMEGAd] = get_discrete_sys(T, omega_k);
+	
+	% predict
+	y_kp1 = OMEGAd*y_k;
+	x_kp1_p = Ad*x_k + Bd*(y_k'*a_k - g_A);
+	
+	if mod(k,modT) == 0
+		% Get mocap data
+		r_k = r_noisy(:,k);
+		% covariance stuff
+		P_kp1_p = Ad*P_k*Ad' + Q;
+		K_k = P_kp1_p*C'/(C*P_kp1_p*C' + R);
+		P_k = P_kp1_p - K_k*C*P_kp1_p;
+		
+		% update
+		x_kp1 = x_kp1_p + K_k*(r_k - C*x_kp1_p);
+	else
+		x_kp1 = x_kp1_p;
+	end
 	
 	% store data
 	data.x_01(:,k+1) = x_kp1;
@@ -107,7 +153,7 @@ for k=1:ks
 	y_k = y_kp1;
 end
 
-plot_trajectory(data.x_01, rcwA_Ts_0_01, 'Quadcopter trajectory with updates');
+plot_trajectory3(rcwA_Ts_0_01, data.x_1, data.x_01, '$T_{MOCAP}=1$','$T_{MOCAP}=0.1$', 'HW4 P2b: Quadcopter trajectory with MOCAP updates');
 
 
 function crossMat = crMat(X)
@@ -131,11 +177,11 @@ nhat_k = omega_k / norm(omega_k);
 OMEGAd = expm(-norm(omega_k)*T*crMat(nhat_k));
 end
 
-function plot_trajectory(data, ref, title_str)
+function plot_trajectory2(ref, data, label, title_str)
 figure;
-plot3(data(1,:), data(2,:), data(3,:), 'LineWidth', 2, 'DisplayName', 'Estimated');
-hold on;
 plot3(ref(1,:), ref(2,:), ref(3,:), 'LineWidth', 2, 'DisplayName', 'Reference');
+hold on;
+plot3(data(1,:), data(2,:), data(3,:), 'LineWidth', 2, 'DisplayName', label);
 xlabel('x');
 ylabel('y');
 zlabel('z');
@@ -143,3 +189,18 @@ title(title_str);
 grid on;
 legend("Location", "best");
 end
+
+function plot_trajectory3(ref, data1, data2, label1, label2, title_str)
+figure;
+plot3(ref(1,:), ref(2,:), ref(3,:), 'LineWidth', 2, 'DisplayName', 'Reference');
+hold on;
+plot3(data1(1,:), data1(2,:), data1(3,:), 'LineWidth', 2, 'DisplayName', label1);
+plot3(data2(1,:), data2(2,:), data2(3,:), 'LineWidth', 2, 'DisplayName', label2);
+xlabel('x');
+ylabel('y');
+zlabel('z');
+title(title_str);
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+end
+
