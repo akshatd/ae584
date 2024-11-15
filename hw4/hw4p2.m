@@ -154,7 +154,7 @@ for k=1:ks
 end
 
 plot_trajectory3(rcwA_Ts_0_01, data.x_1, data.x_01, '$T_{MOCAP}=1$','$T_{MOCAP}=0.1$', 'HW4 P2b: Quadcopter trajectory with MOCAP updates');
-
+plot_components(rcwA_Ts_0_01, data.x_1, data.x_01, '$T_{MOCAP}=1$','$T_{MOCAP}=0.1$', T, 'HW4 P2b: Quadcopter trajectory components with MOCAP updates');
 
 function crossMat = crMat(X)
 crossMat = [
@@ -204,3 +204,38 @@ grid on;
 legend("Location", "best", "Interpreter", "latex");
 end
 
+function plot_components(ref, data1, data2, label1, label2, T, title_str)
+figure;
+sgtitle(title_str);
+
+subplot(1,3,1);
+plot(ref(1,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', 'Reference');
+hold on;
+plot(data1(1,:), (0:length(ref)-1) * T, '.-', 'LineWidth', 2, 'DisplayName', label1);
+plot(data2(1,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label2);
+xlabel('x');
+ylabel('t');
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+subplot(1,3,2);
+plot(ref(2,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', 'Reference');
+hold on;
+plot(data1(2,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label1);
+plot(data2(2,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label2);
+xlabel('y');
+% ylabel('t');
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+subplot(1,3,3);
+plot(ref(3,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', 'Reference');
+hold on;
+plot(data1(3,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label1);
+plot(data2(3,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label2);
+xlabel('z');
+% ylabel('t');
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+end
