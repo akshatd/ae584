@@ -6,6 +6,7 @@ phi = pi/6; % rad
 g_A = [0;0;-g]; % m/s^2
 T = 0.01; % s, sampling interval
 D = diag([0.1,0.1,0.1]); % rad^2/s^2, noise covariance matrix
+% D = diag([0,0,0]); % rad^2/s^2, noise covariance matrix
 noise = @() D*mvnrnd(zeros(3,1), eye(3))'; % noise function
 
 % sensors
@@ -17,7 +18,7 @@ a_k_noisy = @(k) [
 	] + noise();
 
 % inital conditions
-r_0 = [1;0;0]; % initial orientation
+r_0 = [1;0;0]; % initial position
 rdot_0 = [0;cos(phi);sin(phi)]; % initial angular velocity
 omat_BA_0 = [
 	1, 0,           0;
@@ -208,33 +209,33 @@ function plot_components(ref, data1, data2, label1, label2, T, title_str)
 figure;
 sgtitle(title_str);
 
-subplot(1,3,1);
-plot(ref(1,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', 'Reference');
+subplot(3,1,1);
+plot((0:length(ref)-1) * T, ref(1,:) , 'LineWidth', 2, 'DisplayName', 'Reference');
 hold on;
-plot(data1(1,:), (0:length(ref)-1) * T, '.-', 'LineWidth', 2, 'DisplayName', label1);
-plot(data2(1,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label2);
-xlabel('x');
-ylabel('t');
+plot((0:length(ref)-1) * T, data1(1,:) , 'LineWidth', 2, 'DisplayName', label1);
+plot((0:length(ref)-1) * T, data2(1,:) , '--', 'LineWidth', 2, 'DisplayName', label2);
+xlabel('t');
+ylabel('x');
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
-subplot(1,3,2);
-plot(ref(2,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', 'Reference');
+subplot(3,1,2);
+plot((0:length(ref)-1) * T, ref(2,:) , 'LineWidth', 2, 'DisplayName', 'Reference');
 hold on;
-plot(data1(2,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label1);
-plot(data2(2,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label2);
-xlabel('y');
-% ylabel('t');
+plot((0:length(ref)-1) * T, data1(2,:) , 'LineWidth', 2, 'DisplayName', label1);
+plot((0:length(ref)-1) * T, data2(2,:) , '--', 'LineWidth', 2, 'DisplayName', label2);
+xlabel('t');
+ylabel('y');
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
-subplot(1,3,3);
-plot(ref(3,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', 'Reference');
+subplot(3,1,3);
+plot((0:length(ref)-1) * T, ref(3,:) , 'LineWidth', 2, 'DisplayName', 'Reference');
 hold on;
-plot(data1(3,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label1);
-plot(data2(3,:), (0:length(ref)-1) * T, 'LineWidth', 2, 'DisplayName', label2);
-xlabel('z');
-% ylabel('t');
+plot((0:length(ref)-1) * T, data1(3,:) , 'LineWidth', 2, 'DisplayName', label1);
+plot((0:length(ref)-1) * T, data2(3,:) , '--', 'LineWidth', 2, 'DisplayName', label2);
+xlabel('t');
+ylabel('z');
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
