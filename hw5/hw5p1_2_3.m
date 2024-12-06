@@ -14,11 +14,12 @@ R_0 = sqrt((x_T_0 - x_M_0)^2 + (y_T_0 - y_M_0)^2); % m
 beta_0 = atan2(y_T_0-y_M_0, x_T_0-x_M_0); % rad, pointing east to target
 x_0 = [x_T_0; y_T_0; x_M_0; y_M_0; R_0; beta_0]; % x_T, y_T, x_M, y_M, R, beta, theta
 
-% part 1: direct pursuit guidance law
+%% part 1: direct pursuit guidance law
 
 % set up simulation
-tspan = 0:0.01:100;
-stop_pos = odeset("Events", @(t, x) stop_x_M(t, x), "RelTol", 1e-12, "AbsTol", 1e-12);
+ts = 0.01;
+tspan = 0:ts:100;
+stop_pos = odeset("Events", @(t, x) stop_x_R0(t, x), "RelTol", 1e-6, "AbsTol", 1e-6);
 
 % simulate
 [t, x] = ode45(@(t, x) dp_law(t, x, v_T, v_M, theta_T), tspan, x_0, stop_pos);
@@ -109,7 +110,7 @@ title("HW5 P1: $|\ddot{\beta}|$ versus Time under DP with different $V_p$", "Int
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
-% part 2: constant bearing pursuit guidance law
+%% part 2: constant bearing pursuit guidance law
 [t_6_cbp, x_6_cbp] = ode45(@(t, x) cbp_law(t, x, v_T, 6, theta_T), tspan, x_0, stop_pos);
 [t_8_cbp, x_8_cbp] = ode45(@(t, x) cbp_law(t, x, v_T, 8, theta_T), tspan, x_0, stop_pos);
 [t_11_cbp, x_11_cbp] = ode45(@(t, x) cbp_law(t, x, v_T, 11, theta_T), tspan, x_0, stop_pos);
@@ -193,7 +194,7 @@ ylim([0, 100]);
 
 fig.Position(4) = 1000;
 
-% part 3: proportional pursuit law
+%% part 3: proportional pursuit law
 x_0 = [x_T_0; y_T_0; x_M_0; y_M_0; R_0; beta_0]; % x_T, y_T, x_M, y_M, R, beta
 theta_0 = beta_0;
 lambdas = [0.25, 0.5, 0.75, 0.9, 1, 2, 5, 50];
@@ -261,6 +262,48 @@ title("HW5 P3: R versus Time under PP with $\lambda\geq1$", "Interpreter", "late
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
+%% part 4: DP and PP with noise
+stop_pos_r05 = odeset("Events", @(t, x) stop_x_R05(t, x), "RelTol", 1e-6, "AbsTol", 1e-6);
+% noisy dp
+[t_6_dp_noise, x_6_dp_noise] = ode_noisy(@(t, x, noise) dp_law_noisy(t, x, v_T, 6, theta_T, noise), tspan, x_0, stop_pos_r05, ts);
+% noisy pp
+lambdas = [1.5, 2, 2.5];
+data_pp_noise = {};
+for i = 1:length(lambdas)
+	[t, x] = ode_noisy(@(t, x, noise) pp_law_noisy(t, x, v_T, v_M, theta_T, lambdas(i), theta_0, noise), tspan, x_0, stop_pos_r05, ts);
+	data_pp_noise{i} = {t, x};
+end
+
+% plot trajectories for dp and pp with noise
+[t, x] = data_pp_noise{end}{:};
+figure;
+plot(x(:, 1), x(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
+hold on;
+plot(x_6_dp_noise(:, 3), x_6_dp_noise(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
+for i=1:length(lambdas)
+	[t, x] = data_pp_noise{i}{:};
+	plot(x(:, 3), x(:, 4), "LineWidth", 2, "DisplayName", sprintf("P (Missile) PP $\\lambda=%.2f$", lambdas(i)));
+end
+xlabel("x (m)");
+ylabel("y (m)");
+title("HW5 P4: Trajectories of E and P under DP and PP with noise", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+ylim([0, 510]);
+% plot R for dp and pp with noise
+figure;
+plot(t_6_dp_noise, x_6_dp_noise(:, 5), "LineWidth", 2, "DisplayName", "DP");
+hold on;
+for i=1:length(lambdas)
+	[t, x] = data_pp_noise{i}{:};
+	plot(t, x(:, 5), "LineWidth", 2, "DisplayName", sprintf("PP $\\lambda=%.2f$", lambdas(i)));
+end
+xlabel("t (s)");
+ylabel("R (m)");
+title("HW5 P4: R versus Time under DP and PP with noise", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
 % Direct pursuit guidance law for missile-target system (theta = beta)
 function x_dot = dp_law(t, x, v_T, v_M, theta_T)
 % x_T = x(1);
@@ -276,13 +319,13 @@ x_dot = [
 	v_T;
 	v_M*cos(theta);
 	v_M*sin(theta);
-	v_T*cos(theta-theta_T) - v_M*cos(beta-theta);
+	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
 	beta_dot;
 	];
 end
 
 % stop condition to stop when the missile reaches the final position
-function [value, isterminal, direction] = stop_x_M(t, x)
+function [value, isterminal, direction] = stop_x_R0(t, x)
 value = x(5); % R
 isterminal = 1; % stop the integration
 direction = 0;
@@ -334,7 +377,7 @@ x_dot = [
 	];
 end
 
-% proportional pursuit guidance law
+% proportional pursuit guidance law (theta = lambda*beta + theta_0)
 function x_dot = pp_law(t, x, v_T, v_M, theta_T, lambda, theta_0)
 % x_T = x(1);
 % y_T = x(2);
@@ -344,6 +387,76 @@ R = x(5);
 beta = x(6);
 theta = lambda * beta + theta_0; % proportional pursuit law
 beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
+x_dot = [
+	0;
+	v_T;
+	v_M*cos(theta);
+	v_M*sin(theta);
+	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
+	beta_dot;
+	];
+end
+
+% ode function with noisy steps
+function [t, x] = ode_noisy(odefun, tspan, x_0, options, ts)
+x = zeros(length(tspan), length(x_0));
+x(1,:) = x_0;
+t = tspan;
+idx_end = 1;
+
+for i = 2:length(t)
+	noise = 0.25*randn(1);
+	[t_ode, x_ode, ~, ~, ie] = ode45(@(t,x)odefun(t,x,noise), [i-2 i-1]*ts, x(i-1, :), options);
+	idx_end = i;
+	x(i,:) = x_ode(end,:);
+	if (~isempty(ie))
+		t(i) = t_ode(end); % current timestep is whenever the event happened
+		break;
+	end
+end
+x = x(1:idx_end, :);
+t = t(1:idx_end);
+end
+
+function [value, isterminal, direction] = stop_x_R05(t, x)
+value = x(5) - 0.5; % R
+isterminal = 1; % stop the integration
+direction = 0;
+end
+
+
+% Direct pursuit guidance law (theta = beta) with noise
+function x_dot = dp_law_noisy(t, x, v_T, v_M, theta_T, noise)
+% x_T = x(1);
+% y_T = x(2);
+% x_M = x(3);
+% y_M = x(4);
+R = x(5);
+beta = x(6);
+theta = beta + noise; % guidance law for direct pursuit, measurement noise in theta
+beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
+% state evolution is based on actual beta, not noisy beta
+x_dot = [
+	0;
+	v_T;
+	v_M*cos(theta);
+	v_M*sin(theta);
+	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
+	beta_dot;
+	];
+end
+
+% proportional pursuit guidance law (theta = lambda*beta + theta_0) with noise
+function x_dot = pp_law_noisy(t, x, v_T, v_M, theta_T, lambda, theta_0, noise)
+% x_T = x(1);
+% y_T = x(2);
+% x_M = x(3);
+% y_M = x(4);
+R = x(5);
+beta = x(6);
+theta = lambda * (beta + noise) + theta_0; % proportional pursuit law, measurement noise in theta
+beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
+% state evolution is based on actual beta, not noisy beta
 x_dot = [
 	0;
 	v_T;
