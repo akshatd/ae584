@@ -18,7 +18,7 @@ x_0 = [x_T_0; y_T_0; x_M_0; y_M_0; R_0; beta_0]; % x_T, y_T, x_M, y_M, R, beta, 
 
 % set up simulation
 tspan = 0:0.01:100;
-stop_pos = odeset("Events", @(t, x) stop_x_M(t, x), "RelTol", 1e-3, "AbsTol", 1e-3);
+stop_pos = odeset("Events", @(t, x) stop_x_M(t, x), "RelTol", 1e-12, "AbsTol", 1e-12);
 
 % simulate
 [t, x] = ode45(@(t, x) dp_law(t, x, v_T, v_M, theta_T), tspan, x_0, stop_pos);
@@ -62,23 +62,23 @@ grid on;
 legend("Location", "best", "Interpreter", "latex");
 
 % plot beta_dot (-2 to ignore last value)
-beta_dot_6 = zeros(length(t_6_dp)-2, 1);
-for i = 1:length(t_6_dp)-2
+beta_dot_6 = zeros(length(t_6_dp)-1, 1);
+for i = 1:length(t_6_dp)-1
 	beta_dot_6(i) = beta_dot_dp(x_6_dp(i, :), v_T, theta_T);
 end
-beta_dot_8 = zeros(length(t_8_dp)-2, 1);
-for i = 1:length(t_8_dp)-2
+beta_dot_8 = zeros(length(t_8_dp)-1, 1);
+for i = 1:length(t_8_dp)-1
 	beta_dot_8(i) = beta_dot_dp(x_8_dp(i, :), v_T, theta_T);
 end
-beta_dot_11 = zeros(length(t_11_dp)-2, 1);
-for i = 1:length(t_11_dp)-2
+beta_dot_11 = zeros(length(t_11_dp)-1, 1);
+for i = 1:length(t_11_dp)-1
 	beta_dot_11(i) = beta_dot_dp(x_11_dp(i, :), v_T, theta_T);
 end
 figure;
-plot(t_6_dp(1:end-2), abs(beta_dot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
+plot(t_6_dp(1:end-1), abs(beta_dot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
 hold on;
-plot(t_8_dp(1:end-2), abs(beta_dot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
-plot(t_11_dp(1:end-2), abs(beta_dot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
+plot(t_8_dp(1:end-1), abs(beta_dot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
+plot(t_11_dp(1:end-1), abs(beta_dot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
 xlabel("t (s)");
 ylabel("$|\dot{\beta}|$ (rad/s)", "Interpreter", "latex", "FontSize", 14);
 title("HW5 P1: $|\dot{\beta}|$ versus Time under DP with different $V_p$", "Interpreter", "latex");
