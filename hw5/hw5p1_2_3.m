@@ -46,16 +46,16 @@ title("HW5 P1: R versus Time under DP");
 grid on;
 
 % multiple missile velocities
-[t_6_dp, x_6_dp] = ode45(@(t, x) dp_law(t, x, v_T, 6, theta_T), tspan, x_0, stop_pos);
-[t_8_dp, x_8_dp] = ode45(@(t, x) dp_law(t, x, v_T, 8, theta_T), tspan, x_0, stop_pos);
-[t_11_dp, x_11_dp] = ode45(@(t, x) dp_law(t, x, v_T, 11, theta_T), tspan, x_0, stop_pos);
+[t_dp_6, x_dp_6] = ode45(@(t, x) dp_law(t, x, v_T, 6, theta_T), tspan, x_0, stop_pos);
+[t_dp_8, x_dp_8] = ode45(@(t, x) dp_law(t, x, v_T, 8, theta_T), tspan, x_0, stop_pos);
+[t_dp_11, x_dp_11] = ode45(@(t, x) dp_law(t, x, v_T, 11, theta_T), tspan, x_0, stop_pos);
 % plot the target with maximum steps
 figure;
-plot(x_6_dp(:, 1), x_6_dp(:, 2), "LineWidth", 2, "DisplayName", "E (Target)");
+plot(x_dp_6(:, 1), x_dp_6(:, 2), "LineWidth", 2, "DisplayName", "E (Target)");
 hold on;
-plot(x_6_dp(:, 3), x_6_dp(:, 4), "LineWidth", 2, "DisplayName", "$V_p=6$");
-plot(x_8_dp(:, 3), x_8_dp(:, 4), "LineWidth", 2, "DisplayName", "$V_p=8$");
-plot(x_11_dp(:, 3), x_11_dp(:, 4), "LineWidth", 2, "DisplayName", "$V_p=11$");
+plot(x_dp_6(:, 3), x_dp_6(:, 4), "LineWidth", 2, "DisplayName", "$V_p=6$");
+plot(x_dp_8(:, 3), x_dp_8(:, 4), "LineWidth", 2, "DisplayName", "$V_p=8$");
+plot(x_dp_11(:, 3), x_dp_11(:, 4), "LineWidth", 2, "DisplayName", "$V_p=11$");
 xlabel("x (m)");
 ylabel("y (m)");
 title("HW5 P1: Trajectories of E and P under DP with different $V_p$", "Interpreter", "latex");
@@ -63,23 +63,23 @@ grid on;
 legend("Location", "best", "Interpreter", "latex");
 
 % plot beta_dot (-2 to ignore last value)
-beta_dot_6 = zeros(length(t_6_dp)-1, 1);
-for i = 1:length(t_6_dp)-1
-	beta_dot_6(i) = beta_dot_dp(x_6_dp(i, :), v_T, theta_T);
+beta_dot_6 = zeros(length(t_dp_6)-1, 1);
+for i = 1:length(t_dp_6)-1
+	beta_dot_6(i) = beta_dot_dp(x_dp_6(i, :), v_T, theta_T);
 end
-beta_dot_8 = zeros(length(t_8_dp)-1, 1);
-for i = 1:length(t_8_dp)-1
-	beta_dot_8(i) = beta_dot_dp(x_8_dp(i, :), v_T, theta_T);
+beta_dot_8 = zeros(length(t_dp_8)-1, 1);
+for i = 1:length(t_dp_8)-1
+	beta_dot_8(i) = beta_dot_dp(x_dp_8(i, :), v_T, theta_T);
 end
-beta_dot_11 = zeros(length(t_11_dp)-1, 1);
-for i = 1:length(t_11_dp)-1
-	beta_dot_11(i) = beta_dot_dp(x_11_dp(i, :), v_T, theta_T);
+beta_dot_11 = zeros(length(t_dp_11)-1, 1);
+for i = 1:length(t_dp_11)-1
+	beta_dot_11(i) = beta_dot_dp(x_dp_11(i, :), v_T, theta_T);
 end
 figure;
-plot(t_6_dp(1:end-1), abs(beta_dot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
+plot(t_dp_6(1:end-1), abs(beta_dot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
 hold on;
-plot(t_8_dp(1:end-1), abs(beta_dot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
-plot(t_11_dp(1:end-1), abs(beta_dot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
+plot(t_dp_8(1:end-1), abs(beta_dot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
+plot(t_dp_11(1:end-1), abs(beta_dot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
 xlabel("t (s)");
 ylabel("$|\dot{\beta}|$ (rad/s)", "Interpreter", "latex", "FontSize", 14);
 title("HW5 P1: $|\dot{\beta}|$ versus Time under DP with different $V_p$", "Interpreter", "latex");
@@ -87,23 +87,23 @@ grid on;
 legend("Location", "best", "Interpreter", "latex");
 
 % get beta_ddot and plot it (-2 to ignore last values)
-beta_ddot_6 = zeros(length(t_6_dp)-2, 1);
-for i = 1:length(t_6_dp)-2
-	beta_ddot_6(i) = beta_ddot_dp(x_6_dp(i, :), v_T, 6, theta_T);
+beta_ddot_6 = zeros(length(t_dp_6)-2, 1);
+for i = 1:length(t_dp_6)-2
+	beta_ddot_6(i) = beta_ddot_dp(x_dp_6(i, :), v_T, 6, theta_T);
 end
-beta_ddot_8 = zeros(length(t_8_dp)-2, 1);
-for i = 1:length(t_8_dp)-2
-	beta_ddot_8(i) = beta_ddot_dp(x_8_dp(i, :), v_T, 8, theta_T);
+beta_ddot_8 = zeros(length(t_dp_8)-2, 1);
+for i = 1:length(t_dp_8)-2
+	beta_ddot_8(i) = beta_ddot_dp(x_dp_8(i, :), v_T, 8, theta_T);
 end
-beta_ddot_11 = zeros(length(t_11_dp)-2, 1);
-for i = 1:length(t_11_dp)-2
-	beta_ddot_11(i) = beta_ddot_dp(x_11_dp(i, :), v_T, 11, theta_T);
+beta_ddot_11 = zeros(length(t_dp_11)-2, 1);
+for i = 1:length(t_dp_11)-2
+	beta_ddot_11(i) = beta_ddot_dp(x_dp_11(i, :), v_T, 11, theta_T);
 end
 figure;
-plot(t_6_dp(1:end-2), abs(beta_ddot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
+plot(t_dp_6(1:end-2), abs(beta_ddot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
 hold on;
-plot(t_8_dp(1:end-2), abs(beta_ddot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
-plot(t_11_dp(1:end-2), abs(beta_ddot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
+plot(t_dp_8(1:end-2), abs(beta_ddot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
+plot(t_dp_11(1:end-2), abs(beta_ddot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
 xlabel("t (s)");
 ylabel("$|\ddot{\beta}|$ (rad/s$^2$)", "Interpreter", "latex", "FontSize", 14);
 title("HW5 P1: $|\ddot{\beta}|$ versus Time under DP with different $V_p$", "Interpreter", "latex");
@@ -111,19 +111,19 @@ grid on;
 legend("Location", "best", "Interpreter", "latex");
 
 %% part 2: constant bearing pursuit guidance law
-[t_6_cbp, x_6_cbp] = ode45(@(t, x) cbp_law(t, x, v_T, 6, theta_T), tspan, x_0, stop_pos);
-[t_8_cbp, x_8_cbp] = ode45(@(t, x) cbp_law(t, x, v_T, 8, theta_T), tspan, x_0, stop_pos);
-[t_11_cbp, x_11_cbp] = ode45(@(t, x) cbp_law(t, x, v_T, 11, theta_T), tspan, x_0, stop_pos);
+[t_cbp_6, x_cbp_6] = ode45(@(t, x) cbp_law(t, x, v_T, 6, theta_T), tspan, x_0, stop_pos);
+[t_cbp_8, x_cbp_8] = ode45(@(t, x) cbp_law(t, x, v_T, 8, theta_T), tspan, x_0, stop_pos);
+[t_cbp_11, x_cbp_11] = ode45(@(t, x) cbp_law(t, x, v_T, 11, theta_T), tspan, x_0, stop_pos);
 
 % plot missile and target in subplots with comparison
 fig = figure;
 sgtitle("HW5 P2: Trajectories of E and P under DP and CBP");
 
 subplot(3, 1, 1);
-plot(x_6_dp(:, 1), x_6_dp(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
+plot(x_dp_6(:, 1), x_dp_6(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
 hold on;
-plot(x_6_dp(:, 3), x_6_dp(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
-plot(x_6_cbp(:, 3), x_6_cbp(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) CBP");
+plot(x_dp_6(:, 3), x_dp_6(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
+plot(x_cbp_6(:, 3), x_cbp_6(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) CBP");
 xlabel("x (m)");
 ylabel("y (m)");
 title("$V_p=6$", "Interpreter", "latex");
@@ -131,10 +131,10 @@ grid on;
 legend("Location", "best", "Interpreter", "latex");
 
 subplot(3, 1, 2);
-plot(x_6_dp(:, 1), x_6_dp(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
+plot(x_dp_6(:, 1), x_dp_6(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
 hold on;
-plot(x_8_dp(:, 3), x_8_dp(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
-plot(x_8_cbp(:, 3), x_8_cbp(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) CBP");
+plot(x_dp_8(:, 3), x_dp_8(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
+plot(x_cbp_8(:, 3), x_cbp_8(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) CBP");
 xlabel("x (m)");
 ylabel("y (m)");
 title("$V_p=8$", "Interpreter", "latex");
@@ -142,10 +142,10 @@ grid on;
 legend("Location", "best", "Interpreter", "latex");
 
 subplot(3, 1, 3);
-plot(x_6_dp(:, 1), x_6_dp(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
+plot(x_dp_6(:, 1), x_dp_6(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
 hold on;
-plot(x_11_dp(:, 3), x_11_dp(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
-plot(x_11_cbp(:, 3), x_11_cbp(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) CBP");
+plot(x_dp_11(:, 3), x_dp_11(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
+plot(x_cbp_11(:, 3), x_cbp_11(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) CBP");
 xlabel("x (m)");
 ylabel("y (m)");
 title("$V_p=11$", "Interpreter", "latex");
@@ -160,9 +160,9 @@ fig = figure;
 sgtitle("HW5 P2: R versus Time under DP and CBP");
 
 subplot(3, 1, 1);
-plot(t_6_dp, x_6_dp(:, 5), "LineWidth", 2, "DisplayName", "DP");
+plot(t_dp_6, x_dp_6(:, 5), "LineWidth", 2, "DisplayName", "DP");
 hold on;
-plot(t_6_cbp, x_6_cbp(:, 5), "LineWidth", 2, "DisplayName", "CBP");
+plot(t_cbp_6, x_cbp_6(:, 5), "LineWidth", 2, "DisplayName", "CBP");
 xlabel("t (s)");
 ylabel("R (m)");
 title("$V_p=6$", "Interpreter", "latex");
@@ -171,9 +171,9 @@ legend("Location", "best", "Interpreter", "latex");
 ylim([0, 100]);
 
 subplot(3, 1, 2);
-plot(t_8_dp, x_8_dp(:, 5), "LineWidth", 2, "DisplayName", "DP");
+plot(t_dp_8, x_dp_8(:, 5), "LineWidth", 2, "DisplayName", "DP");
 hold on;
-plot(t_8_cbp, x_8_cbp(:, 5), "LineWidth", 2, "DisplayName", "CBP");
+plot(t_cbp_8, x_cbp_8(:, 5), "LineWidth", 2, "DisplayName", "CBP");
 xlabel("t (s)");
 ylabel("R (m)");
 title("$V_p=8$", "Interpreter", "latex");
@@ -182,9 +182,9 @@ legend("Location", "best", "Interpreter", "latex");
 ylim([0, 100]);
 
 subplot(3, 1, 3);
-plot(t_11_dp, x_11_dp(:, 5), "LineWidth", 2, "DisplayName", "DP");
+plot(t_dp_11, x_dp_11(:, 5), "LineWidth", 2, "DisplayName", "DP");
 hold on;
-plot(t_11_cbp, x_11_cbp(:, 5), "LineWidth", 2, "DisplayName", "CBP");
+plot(t_cbp_11, x_cbp_11(:, 5), "LineWidth", 2, "DisplayName", "CBP");
 xlabel("t (s)");
 ylabel("R (m)");
 title("$V_p=11$", "Interpreter", "latex");
@@ -195,7 +195,6 @@ ylim([0, 100]);
 fig.Position(4) = 1000;
 
 %% part 3: proportional pursuit law
-x_0 = [x_T_0; y_T_0; x_M_0; y_M_0; R_0; beta_0]; % x_T, y_T, x_M, y_M, R, beta
 theta_0 = beta_0;
 lambdas = [0.25, 0.5, 0.75, 0.9, 1, 2, 5, 50];
 data_pp = {};
@@ -241,7 +240,7 @@ for i=5:length(lambdas)
 	[t, x] = data_pp{i}{:};
 	plot(x(:, 3), x(:, 4), "LineWidth", 2, "DisplayName", sprintf("P (Missile) PP $\\lambda=%.2f$", lambdas(i)));
 end
-plot(x_6_cbp(:, 3), x_6_cbp(:, 4), "--", "LineWidth", 2, "DisplayName", "P (Missile) CBP");
+plot(x_cbp_6(:, 3), x_cbp_6(:, 4), "--", "LineWidth", 2, "DisplayName", "P (Missile) CBP");
 xlabel("x (m)");
 ylabel("y (m)");
 title("HW5 P3: Trajectories of E and P under PP with $\lambda\geq1$", "Interpreter", "latex");
@@ -255,7 +254,7 @@ for i=5:length(lambdas)
 	plot(t, x(:, 5), "LineWidth", 2, "DisplayName", sprintf("PP $\\lambda=%.2f$", lambdas(i)));
 	hold on;
 end
-plot(t_6_cbp, x_6_cbp(:, 5), "--", "LineWidth", 2, "DisplayName", "CBP");
+plot(t_cbp_6, x_cbp_6(:, 5), "--", "LineWidth", 2, "DisplayName", "CBP");
 xlabel("t (s)");
 ylabel("R (m)");
 title("HW5 P3: R versus Time under PP with $\lambda\geq1$", "Interpreter", "latex");
@@ -301,6 +300,76 @@ end
 xlabel("t (s)");
 ylabel("R (m)");
 title("HW5 P4: R versus Time under DP and PP with noise", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+%% part 5: CBP and PP with maneuvering target
+% get cbp
+[t_cbp_6_man, x_cbp_6_man] = ode45(@(t, x) cbp_law_man(t, x, v_T, 6), tspan, x_0, stop_pos);
+% get pp
+theta_0 = beta_0;
+lambdas = [0.25, 0.5, 0.75, 0.9, 1, 2, 5, 50];
+data_pp_man = {};
+for i = 1:length(lambdas)
+	[t, x] = ode45(@(t, x) pp_law_man(t, x, v_T, v_M, lambdas(i), theta_0), tspan, x_0, stop_pos);
+	data_pp_man{i} = {t, x};
+end
+
+% plot traj for lambda < 1
+figure
+[t, x] = data_pp_man{1}{:};
+plot(x(:, 1), x(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
+hold on;
+for i=1:4
+	[t, x] = data_pp_man{i}{:};
+	plot(x(:, 3), x(:, 4), "LineWidth", 2, "DisplayName", sprintf("P (Missile) PP $\\lambda=%.2f$", lambdas(i)));
+end
+xlabel("x (m)");
+ylabel("y (m)");
+title("HW5 P5: Trajectories of E and P under PP with $\lambda<1$ and maneuvering E", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+% plot R for lambda < 1
+figure;
+for i=1:4
+	[t, x] = data_pp_man{i}{:};
+	plot(t, x(:, 5), "LineWidth", 2, "DisplayName", sprintf("PP $\\lambda=%.2f$", lambdas(i)));
+	hold on;
+end
+xlabel("t (s)");
+ylabel("R (m)");
+title("HW5 P5: R versus Time under PP with $\lambda<1$ and maneuvering E", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+% plot traj for lambda >= 1
+figure;
+[t, x] = data_pp_man{5}{:};
+plot(x(:, 1), x(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
+hold on;
+for i=5:length(lambdas)
+	[t, x] = data_pp_man{i}{:};
+	plot(x(:, 3), x(:, 4), "LineWidth", 2, "DisplayName", sprintf("P (Missile) PP $\\lambda=%.2f$", lambdas(i)));
+end
+plot(x_cbp_6_man(:, 3), x_cbp_6_man(:, 4), "--", "LineWidth", 2, "DisplayName", "P (Missile) CBP");
+xlabel("x (m)");
+ylabel("y (m)");
+title("HW5 P5: Trajectories of E and P under PP with $\lambda\geq1$ and maneuvering E", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+% plot R for lambda >= 1
+figure;
+for i=5:length(lambdas)
+	[t, x] = data_pp_man{i}{:};
+	plot(t, x(:, 5), "LineWidth", 2, "DisplayName", sprintf("PP $\\lambda=%.2f$", lambdas(i)));
+	hold on;
+end
+plot(t_cbp_6_man, x_cbp_6_man(:, 5), "--", "LineWidth", 2, "DisplayName", "CBP");
+xlabel("t (s)");
+ylabel("R (m)");
+title("HW5 P5: R versus Time under PP with $\lambda\geq1$ and maneuvering E", "Interpreter", "latex");
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
@@ -366,7 +435,7 @@ function x_dot = cbp_law(t, x, v_T, v_M, theta_T)
 % y_M = x(4);
 % R = x(5);
 beta = x(6);
-theta = theta_cbp(v_T, v_M, theta_T, beta);
+theta = theta_cbp(v_T, v_M, theta_T, beta); % cbp law
 x_dot = [
 	0;
 	v_T;
@@ -460,6 +529,47 @@ beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
 x_dot = [
 	0;
 	v_T;
+	v_M*cos(theta);
+	v_M*sin(theta);
+	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
+	beta_dot;
+	];
+end
+
+% Constant bearing pursuit guidance law (beta_dot = 0) with maneuvering target
+function x_dot = cbp_law_man(t, x, v_T, v_M)
+% x_T = x(1);
+% y_T = x(2);
+% x_M = x(3);
+% y_M = x(4);
+% R = x(5);
+beta = x(6);
+theta_T = pi/2 + cos(t); % maneuvering target
+theta = theta_cbp(v_T, v_M, theta_T, beta); % cbp law
+x_dot = [
+	v_T * cos(theta_T);
+	v_T * sin(theta_T);
+	v_M*cos(theta);
+	v_M*sin(theta);
+	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
+	0; % cbp law, beta_dot = 0
+	];
+end
+
+% proportional pursuit guidance law (theta = lambda*beta + theta_0) with maneuvering target
+function x_dot = pp_law_man(t, x, v_T, v_M, lambda, theta_0)
+% x_T = x(1);
+% y_T = x(2);
+% x_M = x(3);
+% y_M = x(4);
+R = x(5);
+beta = x(6);
+theta_T = pi/2 + cos(t); % maneuvering target
+theta = lambda * beta + theta_0; % proportional pursuit law
+beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
+x_dot = [
+	v_T * cos(theta_T);
+	v_T * sin(theta_T);
 	v_M*cos(theta);
 	v_M*sin(theta);
 	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
