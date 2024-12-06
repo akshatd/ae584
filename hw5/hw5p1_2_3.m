@@ -264,8 +264,9 @@ legend("Location", "best", "Interpreter", "latex");
 %% part 4: DP and PP with noise
 stop_pos_r05 = odeset("Events", @(t, x) stop_x_R05(t, x), "RelTol", 1e-6, "AbsTol", 1e-6);
 % noisy dp
-[t_6_dp_noise, x_6_dp_noise] = ode_noisy(@(t, x, noise) dp_law_noisy(t, x, v_T, 6, theta_T, noise), tspan, x_0, stop_pos_r05, ts);
+[t_6_dp_noise, x_6_dp_noise] = ode_noisy(@(t, x, noise) dp_law_noisy(t, x, v_T, v_M, theta_T, noise), tspan, x_0, stop_pos_r05, ts);
 % noisy pp
+theta_0 = beta_0;
 lambdas = [1.5, 2, 2.5];
 data_pp_noise = {};
 for i = 1:length(lambdas)
@@ -274,8 +275,8 @@ for i = 1:length(lambdas)
 end
 
 % plot trajectories for dp and pp with noise
-[t, x] = data_pp_noise{end}{:};
 figure;
+[t, x] = data_pp_noise{end}{:};
 plot(x(:, 1), x(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
 hold on;
 plot(x_6_dp_noise(:, 3), x_6_dp_noise(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
@@ -370,6 +371,47 @@ plot(t_cbp_6_man, x_cbp_6_man(:, 5), "--", "LineWidth", 2, "DisplayName", "CBP")
 xlabel("t (s)");
 ylabel("R (m)");
 title("HW5 P5: R versus Time under PP with $\lambda\geq1$ and maneuvering E", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
+%% part 6: DP and PP with noise and maneuvering target
+% noisy dp
+[t_6_dp_noise_man, x_6_dp_noise_man] = ode_noisy(@(t, x, noise) dp_law_noisy_man(t, x, v_T, v_M, noise), tspan, x_0, stop_pos_r05, ts);
+% noisy pp
+theta_0 = beta_0;
+lambdas = [1.5, 2, 2.5];
+data_pp_noise_man = {};
+for i = 1:length(lambdas)
+	[t, x] = ode_noisy(@(t, x, noise) pp_law_noisy_man(t, x, v_T, v_M, lambdas(i), theta_0, noise), tspan, x_0, stop_pos_r05, ts);
+	data_pp_noise_man{i} = {t, x};
+end
+
+%plot trajectories for dp and pp with noise and maneuvering target
+figure;
+[t, x] = data_pp_noise_man{end}{:};
+plot(x(:, 1), x(:, 2), "LineWidth", 2, "DisplayName", "E (Target)"); % max E
+hold on;
+plot(x_6_dp_noise_man(:, 3), x_6_dp_noise_man(:, 4), "LineWidth", 2, "DisplayName", "P (Missile) DP");
+for i=1:length(lambdas)
+	[t, x] = data_pp_noise_man{i}{:};
+	plot(x(:, 3), x(:, 4), "LineWidth", 2, "DisplayName", sprintf("P (Missile) PP $\\lambda=%.2f$", lambdas(i)));
+end
+xlabel("x (m)");
+ylabel("y (m)");
+title("HW5 P6: Trajectories of E and P under DP and PP with noise and maneuvering E", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+% plot R for dp and pp with noise and maneuvering target
+figure;
+plot(t_6_dp_noise_man, x_6_dp_noise_man(:, 5), "LineWidth", 2, "DisplayName", "DP");
+hold on;
+for i=1:length(lambdas)
+	[t, x] = data_pp_noise_man{i}{:};
+	plot(t, x(:, 5), "LineWidth", 2, "DisplayName", sprintf("PP $\\lambda=%.2f$", lambdas(i)));
+end
+xlabel("t (s)");
+ylabel("R (m)");
+title("HW5 P6: R versus Time under DP and PP with noise and maneuvering E", "Interpreter", "latex");
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
@@ -567,6 +609,50 @@ beta = x(6);
 theta_T = pi/2 + cos(t); % maneuvering target
 theta = lambda * beta + theta_0; % proportional pursuit law
 beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
+x_dot = [
+	v_T * cos(theta_T);
+	v_T * sin(theta_T);
+	v_M*cos(theta);
+	v_M*sin(theta);
+	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
+	beta_dot;
+	];
+end
+
+% Direct pursuit guidance law (theta = beta) with noise
+function x_dot = dp_law_noisy_man(t, x, v_T, v_M, noise)
+% x_T = x(1);
+% y_T = x(2);
+% x_M = x(3);
+% y_M = x(4);
+R = x(5);
+beta = x(6);
+theta_T = pi/2 + cos(t); % maneuvering target
+theta = beta + noise; % guidance law for direct pursuit, measurement noise in theta
+beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
+% state evolution is based on actual beta, not noisy beta
+x_dot = [
+	v_T * cos(theta_T);
+	v_T * sin(theta_T);
+	v_M*cos(theta);
+	v_M*sin(theta);
+	v_T*cos(beta-theta_T) - v_M*cos(beta-theta);
+	beta_dot;
+	];
+end
+
+% proportional pursuit guidance law (theta = lambda*beta + theta_0) with noise
+function x_dot = pp_law_noisy_man(t, x, v_T, v_M, lambda, theta_0, noise)
+% x_T = x(1);
+% y_T = x(2);
+% x_M = x(3);
+% y_M = x(4);
+R = x(5);
+beta = x(6);
+theta_T = pi/2 + cos(t); % maneuvering target
+theta = lambda * (beta + noise) + theta_0; % proportional pursuit law, measurement noise in theta
+beta_dot = -(v_T*sin(beta-theta_T) - v_M*sin(beta-theta)) / R;
+% state evolution is based on actual beta, not noisy beta
 x_dot = [
 	v_T * cos(theta_T);
 	v_T * sin(theta_T);
