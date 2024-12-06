@@ -67,32 +67,56 @@ title("HW5 P1: Trajectories of E and P under DP with different $V_p$", "Interpre
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
-% plot betadot
-xdot_6 = zeros(length(x_0), length(t_6));
+% plot beta_dot
+beta_dot_6 = zeros(length(t_6), 1);
 for i = 1:length(t_6)
-	xdot_6(:, i) = dp_law(t_6(i), x_6(i, :)', v_T, 6, theta_T);
+	beta_dot_6(i) = beta_dot_dp(x_6(i, :), v_T, theta_T);
 end
-xdot_8 = zeros(length(x_0), length(t_8));
+beta_dot_8 = zeros(length(t_8), 1);
 for i = 1:length(t_8)
-	xdot_8(:, i) = dp_law(t_8(i), x_8(i, :)', v_T, 8, theta_T);
+	beta_dot_8(i) = beta_dot_dp(x_8(i, :), v_T, theta_T);
 end
-xdot_11 = zeros(length(x_0), length(t_11));
+beta_dot_11 = zeros(length(t_11), 1);
 for i = 1:length(t_11)
-	xdot_11(:, i) = dp_law(t_11(i), x_11(i, :)', v_T, 11, theta_T);
+	beta_dot_11(i) = beta_dot_dp(x_11(i, :), v_T, theta_T);
 end
 figure;
-plot(t_6, abs(xdot_6(6, :)), "LineWidth", 2, "DisplayName", "$V_p=6$");
+plot(t_6, abs(beta_dot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
 hold on;
-plot(t_8, abs(xdot_8(6, :)), "LineWidth", 2, "DisplayName", "$V_p=8$");
-plot(t_11, abs(xdot_11(6, :)), "LineWidth", 2, "DisplayName", "$V_p=11$");
+plot(t_8, abs(beta_dot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
+plot(t_11, abs(beta_dot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
 xlabel("t (s)");
 ylabel("$|\dot{\beta}|$ (rad/s)", "Interpreter", "latex", "FontSize", 14);
 title("HW5 P1: $|\dot{\beta}|$ versus Time under DP with different $V_p$", "Interpreter", "latex");
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
+% get beta_ddot and plot it
+beta_ddot_6 = zeros(length(t_6), 1);
+for i = 1:length(t_6)
+	beta_ddot_6(i) = beta_ddot_dp(x_6(i, :), v_T, 6, theta_T);
+end
+beta_ddot_8 = zeros(length(t_8), 1);
+for i = 1:length(t_8)
+	beta_ddot_8(i) = beta_ddot_dp(x_8(i, :), v_T, 8, theta_T);
+end
+beta_ddot_11 = zeros(length(t_11)-1, 1); % ignore last value
+for i = 1:length(t_11)-1
+	beta_ddot_11(i) = beta_ddot_dp(x_11(i, :), v_T, 11, theta_T);
+end
+figure;
+plot(t_6, abs(beta_ddot_6), "LineWidth", 2, "DisplayName", "$V_p=6$");
+hold on;
+plot(t_8, abs(beta_ddot_8), "LineWidth", 2, "DisplayName", "$V_p=8$");
+plot(t_11(1:end-1), abs(beta_ddot_11), "LineWidth", 2, "DisplayName", "$V_p=11$");
+xlabel("t (s)");
+ylabel("$|\ddot{\beta}|$ (rad/s$^2$)", "Interpreter", "latex", "FontSize", 14);
+title("HW5 P1: $|\ddot{\beta}|$ versus Time under DP with different $V_p$", "Interpreter", "latex");
+grid on;
+legend("Location", "best", "Interpreter", "latex");
+
 % Direct pursuit guidance law for missile-target system (theta = beta)
-function xdot = dp_law(t, x, v_T, v_M, theta_T)
+function x_dot = dp_law(t, x, v_T, v_M, theta_T)
 % x_T = x(1);
 % y_T = x(2);
 % x_M = x(3);
@@ -102,7 +126,7 @@ beta = x(6);
 theta = beta; % guidance law for direct pursuit
 beta_dot = -(v_T*sin(theta-theta_T) - v_M*sin(beta-theta)) / R;
 theta_dot = beta_dot; % guidance law for direct pursuit
-xdot = [
+x_dot = [
 	0;
 	v_T;
 	v_M*cos(theta);
@@ -125,5 +149,20 @@ gamma = v_T / v_M;
 t_c = gamma * norm(T_0) / ((1-gamma^2) * v_T);
 end
 
+% beta_dot for direct pursuit
+function beta_dot = beta_dot_dp(x, v_T, theta_T)
+R = x(5);
+beta = x(6);
+beta_dot = -(v_T*sin(beta - theta_T)) / R;
+end
+
 % beta ddot for direct pursuit
-% function beta_ddot = beta_ddot_dp(
+function beta_ddot = beta_ddot_dp(x, v_T, v_M, theta_T)
+xdot = dp_law(0, x, v_T, v_M, theta_T);
+R = x(5);
+R_dot = xdot(5);
+beta = x(6);
+beta_dot = xdot(6);
+% beta_ddot = (v_T^2 * cos(theta - theta_T) - v_M^2 * cos(beta - theta) + R_dot * v_M * sin(beta - theta) - R * v_M * beta_dot * cos(beta - theta)) / R;
+beta_ddot = (-R*beta_dot*v_T*cos(beta-theta_T) + R_dot*v_T*sin(beta-theta_T)) / R^2;
+end
