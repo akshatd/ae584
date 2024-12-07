@@ -12,14 +12,14 @@ Lambdas = [3, 4, 5];
 data = {};
 for i=1:length(Lambdas)
 	[t_ode, p_ode] = ode45(@(t, p) adj_eq(t, p, Lambdas(i), T, tf), tspan_inv, p_f);
-	p2 = flip((p_ode(:,2))'); % take p2 and flip it to match tspan
+	p2 = p_ode(:,2);
 	
 	% calculate G
 	neg_TG = zeros(length(t_ode), 1);
 	t_xaxis = zeros(length(t_ode), 1);
 	for j = 1:length(t_ode)
-		neg_TG(j) = -T * (Lambdas(i) * p2(j) ) / (T * (tf - tspan(j)));
-		t_xaxis(j) = (tf-tspan(j)) / T;
+		neg_TG(j) = -T * (Lambdas(i) * p2(j) ) / (T * (tf - t_ode(j)));
+		t_xaxis(j) = (tf-t_ode(j)) / T;
 	end
 	data{i} = [t_xaxis, neg_TG]; % dont need first value
 end
