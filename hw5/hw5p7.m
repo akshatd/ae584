@@ -21,18 +21,19 @@ for i=1:length(Lambdas)
 		neg_TG(j) = -T * (Lambdas(i) * p2(j) ) / (T * (tf - t_ode(j)));
 		t_xaxis(j) = (tf-t_ode(j)) / T;
 	end
-	data{i} = [t_xaxis, neg_TG]; % dont need first value
+	data{i} = [t_xaxis, neg_TG];
 end
 
 % plot G
 figure;
+Lambda_markers = ["--", "-", "-."];
 hold on;
 for i=1:length(Lambdas)
-	plot(data{i}(:,1), data{i}(:,2), "LineWidth", 2, "DisplayName", "$\Lambda=$" + string(Lambdas(i)));
+	plot(data{i}(:,1), data{i}(:,2), Lambda_markers(i), "LineWidth", 1.5, "DisplayName", "$\Lambda=$" + string(Lambdas(i)));
 end
-xlabel("$(\bar{t_f}-t)/T$", "Interpreter", "latex");
-ylabel("$-TG(\bar{t_f},t)$", "Interpreter", "latex");
-title("HW5 P7: $-TG$ versus $(\bar{t_f}-t)/T$", "Interpreter", "latex");
+xlabel("$(\bar{t_f}-t)/T$", "Interpreter", "latex", "FontSize", 14);
+ylabel("$-TG(\bar{t_f},t)$", "Interpreter", "latex", "FontSize", 14);
+title("HW5 P7: $-TG$ versus $(\bar{t_f}-t)/T$", "Interpreter", "latex", "FontSize", 16);
 grid on;
 legend("Location", "best", "Interpreter", "latex");
 
