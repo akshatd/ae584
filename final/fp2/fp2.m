@@ -1,13 +1,14 @@
-% 584 Final Project Fall 2020
-% Problem 2
-% Written by Syed Aseem Ul Islam (aseemisl@umich.edu) 17 Nov 2020.
 
-clear all
-clc
+
+% 584 Final Project Fall 2024
+% Problem 2: Planar Endoatmospheric Guidance
+% Written by Syed Aseem Ul Islam (aseemisl@umich.edu) 17 Nov 2020.
+% Finished by: Akshat Dubey 13 Dec 2024
+
+clc; clear; close all;
 
 time = 500; %seconds
 Ts = 0.1;
-
 
 %%%%%%%%%%%%% i %%%%%%%%%%%%%%%%%
 % x(1)    :: hP
@@ -18,26 +19,34 @@ Ts = 0.1;
 % x(6)    :: gammaE
 % x(7)    :: R
 % x(8)    :: beta
-x0_kin = ;
+
+hP_0 = 10000; % Pursuer altitude, m
+dP_0 = 0; % Pursuer downrange, m
+gammaP_0 = 0; % Pursuer flight path angle, rad
+hE_0 = 10000; % Evader altitude, m
+dE_0 = 30000; % Evader downrange, m
+gammaE_0 = pi; % Evader flight path angle, rad
+R_0 = norm([hE_0 - hP_0, dE_0 - dP_0]); % Range, m
+beta_0 = atan2(hE_0 - hP_0, dE_0 - dP_0); % LOS Bearing, rad
+
+x0_kin = [hP_0, dP_0, gammaP_0, hE_0, dE_0, gammaE_0, R_0, beta_0];
 
 x = zeros(8,time/Ts);
 for ii = 1:time/Ts
-    if ii == 1
-        [~,xx]      = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts , x0_kin );
-    else
-        [~,xx]      = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts , x(:,ii-1) );
-    end
-    x(:,ii) = xx(end,:);
-    
-    
-    
-    %%% Intersample Fuzing %%%%%%%%
-    [detonate , missDistance ] = fuzeKin( xx );
-    if detonate
-        missDistance
-        break
-    end
-    %%% Intersample Fuzing %%%%%%%%
+	if ii == 1
+		[~,xx] = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts , x0_kin );
+	else
+		[~,xx] = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts , x(:,ii-1) );
+	end
+	x(:,ii) = xx(end,:);
+	
+	%%% Intersample Fuzing %%%%%%%%
+	[detonate , missDistance ] = fuzeKin( xx );
+	if detonate
+		fprintf('Miss Distance: %f\n',missDistance);
+		break
+	end
+	%%% Intersample Fuzing %%%%%%%%
 end
 
 figure(1)
@@ -58,7 +67,6 @@ legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex')
 ylabel('$h$ (km)','interpreter','latex')
 xlabel('$d$ (km)','interpreter','latex')
 
-
 %%
 % %%%%%%%%%%%%% ii %%%%%%%%%%%%%%%%%
 % x(1)    :: VP
@@ -70,32 +78,28 @@ xlabel('$d$ (km)','interpreter','latex')
 % x(7)    :: hE
 % x(8)    :: dE
 
-x0_dyn = ;
+VP_0 = 450; % Pursuer velocity, m/s
+VE_0 = 450; % Evader velocity, m/s
 
+x0_dyn = [VP_0, gammaP_0, hP_0, dP_0, VE_0, gammaE_0, hE_0, dE_0];
 
 x2 = zeros(8,time/Ts);
 for ii = 1:time/Ts
-    if ii == 1
-        [~,xx]      = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts , x0_dyn );
-    else
-        [~,xx]      = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts , x2(:,ii-1) );
-    end
-    x2(:,ii) = xx(end,:);
-    
-    
-
-    %%% Intersample Fuzing %%%%%%%%
-    [detonate , missDistance ] = fuze( xx );
-    if detonate
-        missDistance
-        break
-    end
-    %%% Intersample Fuzing %%%%%%%%
-    
-    
+	if ii == 1
+		[~,xx]      = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts , x0_dyn );
+	else
+		[~,xx]      = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts , x2(:,ii-1) );
+	end
+	x2(:,ii) = xx(end,:);
+	
+	%%% Intersample Fuzing %%%%%%%%
+	[detonate , missDistance ] = fuze( xx );
+	if detonate
+		fprintf('Miss Distance: %f\n',missDistance);
+		break
+	end
+	%%% Intersample Fuzing %%%%%%%%
 end
-
-
 
 figure(2)
 p1 = plot( x2(4,1:ii)/1000  , x2(3,1:ii)/1000  , 'b' );
