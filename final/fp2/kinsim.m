@@ -16,7 +16,7 @@ beta = x(8); % LOS Bearing, rad
 VP = 900; % Pursuer velocity, m/s
 VE = 450; % Evader velocity, m/s
 
-g  = 9.81; % Gravity, m/s^2
+g = 9.81; % Gravity, m/s^2
 
 nzE = 0; % Evader normal acceleration, m/s^2
 if 0 <= t && t < 9

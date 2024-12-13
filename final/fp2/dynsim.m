@@ -11,7 +11,7 @@ gammaE = x(6); % Evader flight path angle, rad
 hE = x(7); % Evader altitude, m
 dE = x(8); % Evader downrange, m
 
-g = 9.81; %m/s^2
+g = 9.81; % Gravity, m/s^2
 
 nzE =  0; % Evader normal acceleration, m/s^2
 if 0 <= t && t < 26
