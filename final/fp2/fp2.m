@@ -34,14 +34,14 @@ x0_kin = [hP_0, dP_0, gammaP_0, hE_0, dE_0, gammaE_0, R_0, beta_0];
 x = zeros(8,time/Ts);
 for ii = 1:time/Ts
 	if ii == 1
-		[~,xx] = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts , x0_kin );
+		[~,xx] = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts, x0_kin);
 	else
-		[~,xx] = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts , x(:,ii-1) );
+		[~,xx] = ode45(@(t,x)kinsim(t,x), [ii ii+1]*Ts, x(:,ii-1));
 	end
 	x(:,ii) = xx(end,:);
 	
 	%%% Intersample Fuzing %%%%%%%%
-	[detonate , missDistance ] = fuzeKin( xx );
+	[detonate, missDistance ] = fuzeKin(xx);
 	if detonate
 		fprintf('Miss Distance: %f\n',missDistance);
 		break
@@ -49,23 +49,24 @@ for ii = 1:time/Ts
 	%%% Intersample Fuzing %%%%%%%%
 end
 
-figure(1)
-p1 = plot( x(2,1:ii)/1000 , x(1,1:ii)/1000  , 'b' );
-hold on
-plot( x(2,1)/1000  , x(1,1)/1000  , 'bx' )
-plot( x(2,ii)/1000  , x(1,ii)/1000  , 'bo' )
-p2 = plot( x(5,1:ii)/1000  , x(4,1:ii)/1000  , 'r' );
-plot( x(5,1)/1000  , x(4,1)/1000  , 'rx' )
-plot( x(5,ii)/1000  , x(4,ii)/1000  , 'ro' )
-hold off
+%%
+figure(1);
+p1 = plot(x(2,1:ii)/1000, x(1,1:ii)/1000, 'b');
+hold on;
+plot(x(2,1)/1000, x(1,1)/1000, 'bx');
+plot(x(2,ii)/1000, x(1,ii)/1000, 'bo');
+p2 = plot(x(5,1:ii)/1000, x(4,1:ii)/1000, 'r');
+plot(x(5,1)/1000, x(4,1)/1000, 'rx');
+plot(x(5,ii)/1000, x(4,ii)/1000, 'ro');
+hold off;
 ylimits = ylim;
 xlimits = xlim;
-axis equal
-ylim([0 ylimits(2)])
-xlim([0 xlimits(2)])
-legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex')
-ylabel('$h$ (km)','interpreter','latex')
-xlabel('$d$ (km)','interpreter','latex')
+axis equal;
+ylim([0 ylimits(2)]);
+xlim([0 xlimits(2)]);
+legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex');
+ylabel('$h$ (km)','interpreter','latex');
+xlabel('$d$ (km)','interpreter','latex');
 
 %%
 % %%%%%%%%%%%%% ii %%%%%%%%%%%%%%%%%
@@ -86,14 +87,14 @@ x0_dyn = [VP_0, gammaP_0, hP_0, dP_0, VE_0, gammaE_0, hE_0, dE_0];
 x2 = zeros(8,time/Ts);
 for ii = 1:time/Ts
 	if ii == 1
-		[~,xx]      = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts , x0_dyn );
+		[~,xx] = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts, x0_dyn);
 	else
-		[~,xx]      = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts , x2(:,ii-1) );
+		[~,xx] = ode45(@(t,x)dynsim(t,x), [ii ii+1]*Ts, x2(:,ii-1));
 	end
 	x2(:,ii) = xx(end,:);
 	
 	%%% Intersample Fuzing %%%%%%%%
-	[detonate , missDistance ] = fuze( xx );
+	[detonate, missDistance ] = fuze(xx);
 	if detonate
 		fprintf('Miss Distance: %f\n',missDistance);
 		break
@@ -101,35 +102,36 @@ for ii = 1:time/Ts
 	%%% Intersample Fuzing %%%%%%%%
 end
 
+%%
 figure(2)
-p1 = plot( x2(4,1:ii)/1000  , x2(3,1:ii)/1000  , 'b' );
+p1 = plot(x2(4,1:ii)/1000, x2(3,1:ii)/1000, 'b');
 hold on
-plot( x2(4,1)/1000  , x2(3,1)/1000  , 'bx' )
-plot( x2(4,ii)/1000  , x2(3,ii)/1000  , 'bo' )
-p2 = plot( x2(8,1:ii)/1000  , x2(7,1:ii)/1000  , 'r' );
-plot( x2(8,1)/1000  , x2(7,1)/1000  , 'rx' )
-plot( x2(8,ii)/1000  , x2(7,ii)/1000  , 'ro' )
-hold off
+plot(x2(4,1)/1000, x2(3,1)/1000, 'bx')
+plot(x2(4,ii)/1000, x2(3,ii)/1000, 'bo')
+p2 = plot(x2(8,1:ii)/1000, x2(7,1:ii)/1000, 'r');
+plot(x2(8,1)/1000, x2(7,1)/1000, 'rx')
+plot(x2(8,ii)/1000, x2(7,ii)/1000, 'ro');
+hold off;
 ylimits = ylim;
 xlimits = xlim;
-axis equal
-ylim([0 ylimits(2)])
-xlim([0 xlimits(2)])
-legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex')
-ylabel('$h$ (km)','interpreter','latex')
-xlabel('$d$ (km)','interpreter','latex')
+axis equal;
+ylim([0 ylimits(2)]);
+xlim([0 xlimits(2)]);
+legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex');
+ylabel('$h$ (km)','interpreter','latex');
+xlabel('$d$ (km)','interpreter','latex');
 
-figure(3)
-plot( [1:ii]*Ts , x2(1,1:ii) , 'b' )
-hold on
-plot( [1:ii]*Ts , x2(5,1:ii) , 'r')
-hold off
-legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex')
-ylabel('$V$ (m/s)','interpreter','latex')
-xlabel('$t$ (s)','interpreter','latex')
-grid on
-axis tight
+figure(3);
+plot([1:ii]*Ts, x2(1,1:ii), 'b');
+hold on;
+plot([1:ii]*Ts, x2(5,1:ii), 'r');
+hold off;
+legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex');
+ylabel('$V$ (m/s)','interpreter','latex');
+xlabel('$t$ (s)','interpreter','latex');
+grid on;
+axis tight;
 ylimits = ylim;
 xlimits = xlim;
-ylim([0 ylimits(2)])
-xlim([0 xlimits(2)])
+ylim([0 ylimits(2)]);
+xlim([0 xlimits(2)]);
