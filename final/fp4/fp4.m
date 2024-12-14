@@ -64,7 +64,30 @@ for ii = 1:time/Ts
 end
 
 %%
-fig = figure(1);
+% plot optimal guidance law
+data_opt = load("OptimalGuidanceRunData.mat");
+figure(1);
+p1 = plot(data_opt.x2(4,1:data_opt.iio)/1000, data_opt.x2(3,1:data_opt.iio)/1000, 'b');
+hold on;
+plot(data_opt.x2(4,1)/1000, data_opt.x2(3,1)/1000, 'bx');
+plot(data_opt.x2(4,data_opt.iio)/1000, data_opt.x2(3,data_opt.iio)/1000, 'bo');
+p2 = plot(data_opt.x2(8,1:data_opt.iio)/1000, data_opt.x2(7,1:data_opt.iio)/1000, 'r');
+plot(data_opt.x2(8,1)/1000, data_opt.x2(7,1)/1000, 'rx');
+plot(data_opt.x2(8,data_opt.iio)/1000, data_opt.x2(7,data_opt.iio)/1000, 'ro');
+hold off;
+ylimits = ylim;
+xlimits = xlim;
+axis equal;
+xlim(xlimits);
+ylim([0 ylimits(2)]);
+legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex','Location','best');
+ylabel('$h$ (km)','interpreter','latex');
+xlabel('$d$ (km)','interpreter','latex');
+grid on;
+title('Final P4: Optimal Guidance Law');
+
+
+fig = figure(2);
 p1 = plot(x1(4,1:ii)/1000, x1(3,1:ii)/1000, 'b');
 hold on;
 plot(x1(4,1)/1000, x1(3,1)/1000, 'bx');
