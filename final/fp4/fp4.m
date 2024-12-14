@@ -64,7 +64,7 @@ fig = figure(2);
 sgtitle("Final P4: Pursuer and Evader Trajectories");
 
 loft_coeff = 5; % lofting factor
-Tloft_coeff = 2; % lofting time coefficient
+Tloft_coeff = 0.002; % lofting time coefficient, divided by 1000 because altitude is in meters
 hdiff_offset = 1000; % offset for hdiff so it lofts even when missile is higher than evader, m
 for s=1:size(x0_dyns, 2)
 	TLoft = 0; % seconds to loft
@@ -105,7 +105,7 @@ for s=1:size(x0_dyns, 2)
 		if ii == 1
 			hdiff = hE_0 - hP + hdiff_offset;
 			if hdiff > 0
-				TLoft = Tloft_coeff*hdiff/1000;
+				TLoft = Tloft_coeff*hdiff;
 			end
 		end
 		

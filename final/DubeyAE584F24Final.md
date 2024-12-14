@@ -158,3 +158,60 @@ Miss distance: $0.000933$ m
 $\pagebreak$
 
 ## Problem 4: Design of a guidance law
+
+When designing the guidance law, I used the following principles:
+
+1. The gravity-corrected proportional guidance law works most of the time when the pursuer is higher than the evader, hence having a higher gravitational potential energy that can be converted to velocity(kinetic energy).
+2. The optimal guidance law leverages the fact that the pursuer has high thrust for the initial 10 seconds, which allows it to gain gravitational potential energy. Furthermore, at higher altitude, the rarer atmosphere allows the pursuer to gain more speed for the same thrust profile. This maneuver is called _lofting_.
+
+For my guidance law, the core idea is that if the pursuer lower than the evader by a certin margin, it should loft for a certain amount of time proportional to the difference in altitude. Subsequently, the pursuer can use the gravity-corrected proportional guidance law to intercept the evader.
+
+Formally, the guidance law is as follows:
+
+$$
+\begin{aligned}
+\text{Let}:& \\
+C_{loft}&: \text{Lofting coefficient} \\
+C_{time}&: \text{Lofting time coefficient} \\
+h_{offset}&: \text{Altitude offset} \\
+\text{Determine at } t=0: &\\
+h_{diff} &= h_E(0) - h_P(0) + h_{offset} \\
+\text{Then}:& \\
+T_{loft} &= \begin{cases}
+C_{time} h_{diff} & \text{if } h_{diff} > 0 \\
+0 & \text{otherwise}
+\end{cases} \\
+\text{Hence, the guidance law is}:& \\
+n_{zP} &= \begin{cases}
+-C_{loft}g - g \ cos(\gamma_P) & \text{if } t < T_{loft} \\
+-3|\dot{R}|\dot{\beta} - g \ cos(\gamma_P) & \text{otherwise}
+\end{cases} \\
+\end{aligned}
+$$
+
+Using this guidance law, I was able to hit 8/10 Engagements with the following coefficients:
+
+$$
+\begin{aligned}
+C_{loft} &= 5 \text{, Taken as half the total time of maximum thrust} \\
+C_{time} &= 0.002 \text{, Taken as a small fraction of the altitude difference in metres} \\
+h_{offset} &= 1000 \text{, Taken to ensure that lofting occurs even if pursuer is slightly higher than evader}
+\end{aligned}
+$$
+
+| Engagement | Miss Distance (m) |
+| ---------- | ----------------- |
+| 1          | NaN (Missed)      |
+| 2          | 0.129273          |
+| 3          | NaN (Missed)      |
+| 4          | 0.038679          |
+| 5          | 0.002091          |
+| 6          | 0.245662          |
+| 7          | 0.031973          |
+| 8          | 0.044042          |
+| 9          | 0.006067          |
+| 10         | 4.449877          |
+
+This guidance law is quite robust, but only for the scenarios given. It assumes that the evader is non-maneuvering and is flying away from the pursuer. If the evader is maneuvering, and is close to the pursuer, the forced lofting can cause the pursuer to miss the evader. In addition, if the evader is flying towards the pursuer at a close distance, the forced lofting can cause the pursuer to also miss the evader. A better guidance law would take the distance to the evader and the relative velocity into account to determine if lofting is necessary.
+
+![Trajectories of pursuer and evader](fp4/fp4_fig1.svg)
