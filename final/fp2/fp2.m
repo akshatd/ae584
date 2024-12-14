@@ -1,5 +1,3 @@
-
-
 % 584 Final Project Fall 2024
 % Problem 2: Planar Endoatmospheric Guidance
 % Written by Syed Aseem Ul Islam (aseemisl@umich.edu) 17 Nov 2020.
@@ -50,7 +48,7 @@ for ii = 1:time/Ts
 end
 
 %%
-figure(1);
+fig = figure(1);
 p1 = plot(x(2,1:ii)/1000, x(1,1:ii)/1000, 'b');
 hold on;
 plot(x(2,1)/1000, x(1,1)/1000, 'bx');
@@ -64,9 +62,11 @@ xlimits = xlim;
 axis equal;
 ylim([0 ylimits(2)]);
 xlim([0 xlimits(2)]);
-legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex');
+legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex',"Location", "best");
 ylabel('$h$ (km)','interpreter','latex');
 xlabel('$d$ (km)','interpreter','latex');
+title("Final P2.i: Engagement using kinematic differential equations")
+saveas(fig, "fp2_fig1.svg");
 
 %%
 % %%%%%%%%%%%%% ii %%%%%%%%%%%%%%%%%
@@ -103,7 +103,7 @@ for ii = 1:time/Ts
 end
 
 %%
-figure(2)
+fig = figure(2);
 p1 = plot(x2(4,1:ii)/1000, x2(3,1:ii)/1000, 'b');
 hold on
 plot(x2(4,1)/1000, x2(3,1)/1000, 'bx')
@@ -117,16 +117,18 @@ xlimits = xlim;
 axis equal;
 ylim([0 ylimits(2)]);
 xlim([0 xlimits(2)]);
-legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex');
+legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex',"Location", "best");
 ylabel('$h$ (km)','interpreter','latex');
 xlabel('$d$ (km)','interpreter','latex');
+title("Final P2.ii: Engagement using dynamic differential equations")
+saveas(fig, "fp2_fig2.svg");
 
-figure(3);
+fig = figure(3);
 plot([1:ii]*Ts, x2(1,1:ii), 'b');
 hold on;
 plot([1:ii]*Ts, x2(5,1:ii), 'r');
 hold off;
-legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex');
+legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex',"Location", "best");
 ylabel('$V$ (m/s)','interpreter','latex');
 xlabel('$t$ (s)','interpreter','latex');
 grid on;
@@ -135,3 +137,5 @@ ylimits = ylim;
 xlimits = xlim;
 ylim([0 ylimits(2)]);
 xlim([0 xlimits(2)]);
+title("Final P2.iii: Velocity of Pursuer and Evader in dynamic engagement")
+saveas(fig, "fp2_fig3.svg");

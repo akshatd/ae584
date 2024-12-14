@@ -63,7 +63,7 @@ for ii = 1:time/Ts
 end
 
 %%
-figure(1);
+fig = figure(1);
 p1 = plot(x(4,1:ii)/1000, x(3,1:ii)/1000, 'b');
 hold on;
 plot(x(4,1)/1000, x(3,1)/1000, 'bx');
@@ -77,17 +77,19 @@ xlimits = xlim;
 axis equal;
 xlim(xlimits);
 ylim([0 ylimits(2)]);
-legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex');
+legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex',"Location", "best");
 ylabel('$h$ (km)','interpreter','latex');
 xlabel('$d$ (km)','interpreter','latex');
 grid on;
+title("Final P3.i: Trajectories of the pursuer and evader");
+saveas(fig, "fp3_fig1.svg");
 
-figure(2);
+fig = figure(2);
 plot([1:ii]*Ts, x(1,1:ii), 'b');
 hold on;
 plot([1:ii]*Ts, x(5,1:ii), 'r');
 hold off;
-legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex');
+legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex',"Location", "best");
 ylabel('$V$ (m/s)','interpreter','latex');
 xlabel('$t$ (s)','interpreter','latex');
 grid on;
@@ -96,7 +98,8 @@ ylimits = ylim;
 xlimits = xlim;
 ylim([0 ylimits(2)]);
 xlim([0 xlimits(2)]);
-
+title("Final P3.i: Pursuer and evader velocities");
+saveas(fig, "fp3_fig2.svg");
 
 %%
 
@@ -136,11 +139,10 @@ for ii = 1:time/Ts
 		break
 	end
 	%%% Intersample Fuzing %%%%%%%%
-	
 end
 
 %%
-figure(3);
+fig = figure(3);
 p1 = plot(x2(4,1:ii)/1000, x2(3,1:ii)/1000, 'b');
 hold on;
 plot(x2(4,1)/1000, x2(3,1)/1000, 'bx');
@@ -154,19 +156,21 @@ xlimits = xlim;
 axis equal;
 ylim([0 ylimits(2)]);
 xlim([0 xlimits(2)]);
-legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex');
+legend([p1,p2],{'Pursuer','Evader'},'interpreter','latex',"Location", "best");
 ylabel('$h$ (km)','interpreter','latex');
 xlabel('$d$ (km)','interpreter','latex');
 % xlim([17.5 18.5]);
 % ylim([10.7 11]);
 grid on;
+title("Final P3.ii: Trajectories of the pursuer and evader");
+saveas(fig, "fp3_fig3.svg");
 
-figure(4);
+fig = figure(4);
 plot([1:ii]*Ts, x2(1,1:ii), 'b');
 hold on;
 plot([1:ii]*Ts, x2(5,1:ii), 'r');
 hold off;
-legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex');
+legend('$V_{\rm P}$','$V_{\rm E}$','interpreter','latex',"Location", "best");
 ylabel('$V$ (m/s)','interpreter','latex');
 xlabel('$t$ (s)','interpreter','latex');
 grid on;
@@ -175,3 +179,5 @@ ylimits = ylim;
 xlimits = xlim;
 ylim([0 ylimits(2)]);
 xlim([0 xlimits(2)]);
+title("Final P3.ii: Pursuer and evader velocities");
+saveas(fig, "fp3_fig4.svg");

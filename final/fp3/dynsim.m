@@ -34,11 +34,11 @@ CdE = pchip(MiE, CdiE, VE/aE); % CdE at atltitude hE and Mach ME
 
 TP = 0; % Thrust profile for AIM120C5 pursuer, N, eq 47
 if 0 <= t && t < 10
-    TP = 11000;
+	TP = 11000;
 elseif 10 <= t && t < 30
-    TP = 1800;
+	TP = 1800;
 elseif t >= 30
-    TP = 0;
+	TP = 0;
 end
 
 TE = rhoE/rho0 * 76310; % Turbofan thrust approximation for evader, N, eq 51
@@ -53,7 +53,7 @@ nzP = -3*abs(R_dot)*beta_dot - g*cos(gammaP);
 
 % Saturate pursuer normal acceleration at 40g
 if abs(nzP)>40*g
-    nzP = sign(nzP)*40*g;
+	nzP = sign(nzP)*40*g;
 end
 
 VP_dot = (TP-drag(rhoP, VP, SP, CdP))/mP - g*sin(gammaP);

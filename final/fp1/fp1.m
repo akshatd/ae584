@@ -10,7 +10,7 @@ D1 = [
 	zeros(3, 3);
 	0.01*eye(3)
 	];
-D2 = 0.1*eye(3);
+D2 = 0.01*eye(3);
 Q = D1 * eye(3) * D1';
 R = D2 * eye(3) * D2';
 x_ref = load("AE584_Final_P1_pos_Ts_0_01.mat");
@@ -24,13 +24,13 @@ C = jacobian(g, X);
 Ts = 0.01;
 Tmeass = [1, 0.1];
 ks = 10000;
-xhat = zeros(6, ks, length(Tmeass));
+xhat = zeros(6, ks+1, length(Tmeass));
 xhat(:, 1, 1) = xhat_0;
 xhat(:, 1, 2) = xhat_0;
 for Tmeas=Tmeass
 	xhat_k = xhat_0;
 	P_k = P_0;
-	for k=2:ks
+	for k=2:ks+1
 		% predict
 		[xhat_p, P_p] = ekf_predict(xhat_k, P_k, Q, Ts, mu);
 		
@@ -54,48 +54,56 @@ for Tmeas=Tmeass
 end
 
 %% plot
-figure;
+fig = figure;
 plot3(xhat(1, :, 1), xhat(2, :, 1), xhat(3, :, 1), 'r', "LineWidth", 2, "DisplayName", "Tmeas=1");
 hold on;
 plot3(xhat(1, :, 2), xhat(2, :, 2), xhat(3, :, 2), 'b', "LineWidth", 2,"DisplayName", "Tmeas=0.1");
-plot3(x_ref.Xref, x_ref.Yref, x_ref.Zref, '--g', "LineWidth", 2, "DisplayName", "True");
+plot3(x_ref.Xref, x_ref.Yref, x_ref.Zref, '--g', "LineWidth", 2, "DisplayName", "Reference");
 xlabel("X");
 ylabel("Y");
 zlabel("Z");
 title("Final P1: Satellite Trajectory");
 legend("Location", "best");
 grid on;
+saveas(fig, "fp1_fig1.svg");
 
-figure;
+fig = figure;
+sgtitle("Final P1: Trajectory Components");
+
 subplot(3, 1, 1);
-plot(xhat(1, :, 1), 'r', "LineWidth", 2, "DisplayName", "Tmeas=1");
+plot([0:ks]*Ts, xhat(1, :, 1), 'r', "LineWidth", 2, "DisplayName", "Tmeas=1");
 hold on;
-plot(xhat(1, :, 2), 'b', "LineWidth", 2, "DisplayName", "Tmeas=0.1");
-plot(x_ref.Xref, '--g', "LineWidth", 2, "DisplayName", "True");
+plot([0:ks]*Ts, xhat(1, :, 2), 'b', "LineWidth", 2, "DisplayName", "Tmeas=0.1");
+plot([0:ks]*Ts, x_ref.Xref, '--g', "LineWidth", 2, "DisplayName", "Reference");
 xlabel("Time");
 ylabel("X");
+xlim([0 100]);
 legend("Location", "best");
 grid on;
 
 subplot(3, 1, 2);
-plot(xhat(2, :, 1), 'r', "LineWidth", 2, "DisplayName", "Tmeas=1");
+plot([0:ks]*Ts, xhat(2, :, 1), 'r', "LineWidth", 2, "DisplayName", "Tmeas=1");
 hold on;
-plot(xhat(2, :, 2), 'b', "LineWidth", 2, "DisplayName", "Tmeas=0.1");
-plot(x_ref.Yref, '--g', "LineWidth", 2, "DisplayName", "True");
+plot([0:ks]*Ts, xhat(2, :, 2), 'b', "LineWidth", 2, "DisplayName", "Tmeas=0.1");
+plot([0:ks]*Ts, x_ref.Yref, '--g', "LineWidth", 2, "DisplayName", "Reference");
 xlabel("Time");
 ylabel("Y");
+xlim([0 100]);
 legend("Location", "best");
 grid on;
 
 subplot(3, 1, 3);
-plot(xhat(3, :, 1), 'r', "LineWidth", 2, "DisplayName", "Tmeas=1");
+plot([0:ks]*Ts, xhat(3, :, 1), 'r', "LineWidth", 2, "DisplayName", "Tmeas=1");
 hold on;
-plot(xhat(3, :, 2), 'b', "LineWidth", 2, "DisplayName", "Tmeas=0.1");
-plot(x_ref.Zref, '--g', "LineWidth", 2, "DisplayName", "True");
+plot([0:ks]*Ts, xhat(3, :, 2), 'b', "LineWidth", 2, "DisplayName", "Tmeas=0.1");
+plot([0:ks]*Ts, x_ref.Zref, '--g', "LineWidth", 2, "DisplayName", "Reference");
 xlabel("Time");
 ylabel("Z");
+xlim([0 100]);
 legend("Location", "best");
 grid on;
+fig.Position(3:4) = [500 1000];
+saveas(fig, "fp1_fig2.svg");
 
 function y_k = measure(x_k)
 X_k = x_k(1);
