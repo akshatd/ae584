@@ -2,6 +2,7 @@ function dx  = dynsim(t,x,nzE)
 % Returns xdot for dynamics engagement simulation.
 % Takes evader normal acceleration as input
 % Written by Syed Aseem Ul Islam (aseemisl@umich.edu) 17 Nov 2020.
+% Finished by: Akshat Dubey 13 Dec 2024
 
 VP = x(1); % Pursuer velocity, m/s
 gammaP = x(2); % Pursuer flight path angle, rad

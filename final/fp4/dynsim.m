@@ -3,61 +3,66 @@ function dx  = dynsim(t,x,nzE,nzP)
 % Returns xdot for dynamics engagement simulation.
 % Takes evader and pursuer normal acceleration as input
 % Written by Syed Aseem Ul Islam (aseemisl@umich.edu) 17 Nov 2020.
+% Finished by: Akshat Dubey 13 Dec 2024
 
+VP = x(1); % Pursuer velocity, m/s
+gammaP = x(2); % Pursuer flight path angle, rad
+hP = x(3); % Pursuer altitude, m
+dP = x(4); % Pursuer downrange, m
+VE = x(5); % Evader velocity, m/s
+gammaE = x(6); % Evader flight path angle, rad
+hE = x(7); % Evader altitude, m
+dE = x(8); % Evader downrange, m
 
-dx = zeros(8,1);
-% x(1)    :: VP
-% x(2)    :: gammaP
-% x(3)    :: hP
-% x(4)    :: dP
-% x(5)    :: VE
-% x(6)    :: gammaE
-% x(7)    :: hE
-% x(8)    :: dE
+g = 9.81; % Gravity, m/s^2
 
+% Based on Problem Setup, near eq 50
+SP = 2.3; % Reference area for drag calculations (pursuer), m^2
+SE = 28; % Reference area for drag calculations (evader), m^2
+mP = 130; % Mass of pursuer, kg
+mE = 10000; % Mass of evader, kg
 
-g = 9.81; %m/s^2
+[~, aP, ~, rhoP] = atmosisa(hP); % speed of sound aP and air density rhoP at altitude hP
+[~, aE, ~, rhoE] = atmosisa(hE); % speed of sound aE and air density  rhoE at altitude hE
+[~, ~, ~, rho0] = atmosisa(0); % air density rho0 at sea level
 
-SP = ; %Reference area for drag calculations (pursuer)
-SE = ; %Reference area for drag calculations (evader)
-mP = ; %mass of pursuer in kg
-mE = ; %mass of evader in kg
+MiP = [0 0.6 0.8 1 1.2 2 3 4 5]; % MP data points for pursuer Cd, eq 49
+CdiP = [0.016 0.016 0.0195 0.045 0.039 0.0285 0.024 0.0215 0.020]; % Cd data points for pursuer Cd, eq 50
+CdP = pchip(MiP, CdiP, VP/aP); % CdP at atltitude hP and Mach MP
 
+MiE = [0 0.9 1 1.2 1.6 2]; % ME data points for evader Cd, eq 53
+CdiE = [0.0175 0.019 0.05 0.045 0.043 0.038]; % Cd data points for evader Cd, eq 54
+CdE = pchip(MiE, CdiE, VE/aE); % CdE at atltitude hE and Mach ME
 
-; %use ISA to compute speed of sound aP and air density rhoP at altitude hP
-; %use ISA to compute speed of sound aE and air density  rhoE at altitude hE
-; %use ISA to air density rho0 at sea level
+TP = 0; % Thrust profile for AIM120C5 pursuer, N, eq 47
+if 0 <= t && t < 10
+	TP = 11000;
+elseif 10 <= t && t < 30
+	TP = 1800;
+elseif t >= 30
+	TP = 0;
+end
 
-MiP = ; %MP data points for pursuer Cd
-CdiP = ; %Cd data points for pursuer Cd
-CdP = pchip(MiP,CdiP,x(1)/aP); % CdP at atltitude hP and Mach MP
-MiE = ; %ME data points for evader Cd
-CdiE = ; %Cd data points for evader Cd
-CdE = pchip(MiE,CdiE,x(5)/aE); % CdE at atltitude hE and Mach ME
-TE = ; %Turbofan thrust approximation for evader in N
-
-
-% Thrust profile for AIM120C5 pursuer
-TP =; %N
-
-
+TE = rhoE/rho0 * 76310; % Turbofan thrust approximation for evader, N, eq 51
 
 % Saturate pursuer normal acceleration at 40g
 if abs(nzP)>40*g
-    nzP = sign(nzP)*40*g;
+	nzP = sign(nzP)*40*g;
 end
 
-dx(1) = ;
-dx(2) = ;
-dx(3) = ;
-dx(4) = ;
+VP_dot = (TP-drag(rhoP, VP, SP, CdP))/mP - g*sin(gammaP);
+gammaP_dot = -(nzP + g*cos(gammaP))/VP;
+hP_dot = VP*sin(gammaP);
+dP_dot = VP*cos(gammaP);
+VE_dot = (TE-drag(rhoE, VE, SE, CdE))/mE - g*sin(gammaE);
+gammaE_dot = -(nzE + g*cos(gammaE))/VE;
+hE_dot = VE*sin(gammaE);
+dE_dot = VE*cos(gammaE);
 
-dx(5) = ;
-dx(6) = ;
-dx(7) = ;
-dx(8) = ;
-
-
+dx = [VP_dot; gammaP_dot; hP_dot; dP_dot; VE_dot; gammaE_dot; hE_dot; dE_dot];
 
 end
 
+function drag_force = drag(rho, V, S, Cd)
+drag_force = 0.5*rho*V^2*S*Cd;
+end
