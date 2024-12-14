@@ -63,7 +63,11 @@ missDistances = zeros(size(x0_dyns, 2), 1);
 fig = figure(2);
 sgtitle("Final P4: Pursuer and Evader Trajectories");
 
+loft_coeff = 5; % lofting factor
+Tloft_coeff = 2; % lofting time coefficient
+hdiff_offset = 1000; % offset for hdiff so it lofts even when missile is higher than evader, m
 for s=1:size(x0_dyns, 2)
+	TLoft = 0; % seconds to loft
 	x1 = zeros(8,time/Ts);
 	nzP = zeros(1,time/Ts);
 	Rdot = zeros(1,time/Ts);
@@ -77,18 +81,45 @@ for s=1:size(x0_dyns, 2)
 		x1(:,ii) = xx(end,:);
 		y = output(x1(:,ii));
 		
+		% available data
+		VP = x1(1,ii); % Pursuer velocity, m/s
+		gammaP = x1(2,ii); % Pursuer flight path angle, rad
+		hP = x1(3,ii); % Pursuer altitude, m
+		dP = x1(4,ii); % Pursuer downrange, m
+		% VE = x1(5,ii); % Evader velocity, m/s
+		% gammaE = x1(6,ii); % Evader flight path angle, rad
+		% hE = x1(7,ii); % Evader altitude, m
+		% dE = x1(8,ii); % Evader downrange, m
+		R = y(1);
+		R_dot = y(2);
+		beta_dot = y(3);
+		hE_0 = x0_dyn(7); % Initial evader altitude, m
+		dE_0 = x0_dyn(8); % Initial evader downrange, m
+		
 		%%% Proportinal Guidance %%%%%%%%%%
-		nzP(:,ii) = -3*abs(y(2))*y(3) - g*cos(x1(2,ii)) ;
+		% nzP(:,ii) = -3*abs(R_dot)*beta_dot - g*cos(gammaP);
 		%%% Proportinal Guidance %%%%%%%%%%
 		
 		%%% Custom Guidance %%%%%%%%%%
-		% nzP(:,ii) = ;
+		% how many seconds to loft
+		if ii == 1
+			hdiff = hE_0 - hP + hdiff_offset;
+			if hdiff > 0
+				TLoft = Tloft_coeff*hdiff/1000;
+			end
+		end
+		
+		if ii * Ts < TLoft
+			nzP(:,ii) =  -loft_coeff*g - g*cos(gammaP);
+		else
+			nzP(:,ii) = -3*abs(R_dot)*beta_dot - g*cos(gammaP);
+		end
 		%%% Custom Guidance %%%%%%%%%%
 		
 		%%% Intersample Fuzing %%%%%%%%
 		[detonate, missDistance ] = fuze(xx); %check for fuzing conditions in intersample xx
 		if detonate
-			fprintf('Miss Distance: %f\n',missDistance);
+			fprintf('Engagement %d Miss Distance: %f\n', s, missDistance);
 			break
 		end
 		%%% Intersample Fuzing %%%%%%%%
